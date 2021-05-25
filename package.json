@@ -1,0 +1,28 @@
+{
+  "name": "means",
+  "version": "0.0.1",
+  "main": "src/index.js",
+  "repository": "https://github.com/public-office/means.git",
+  "author": "Matt Lenz <matt@mattlenz.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "cp src/dev.html .ui/ui.html && vite",
+    "build": "vite build && cat .ui/manifest.json | node src/index.html.js > .ui/ui.html"
+  },
+  "devDependencies": {
+    "sass": "^1.32.12",
+    "vite": "^2.2.3",
+    "vite-plugin-vue2": "^1.4.4"
+  },
+  "dependencies": {
+    "file-type": "./lib/file-type",
+    "interactjs": "^1.10.11",
+    "lodash-es": "^4.17.21",
+    "material-icons-base64": "^1.1.5",
+    "mime": "^2.5.2",
+    "path-browserify": "^1.0.1",
+    "vue": ">= 2.5 < 3",
+    "vue-router": "^3.5.1",
+    "vuex": "^3.6.2"
+  }
+}
