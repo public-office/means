@@ -2,11 +2,11 @@
 <div class="spatial-entries" @dragover.prevent @drop.prevent="onDrop">
   <div
     class="spatial-entry"
-    v-for="({entry, style, resizable, draggable}) in $store.getters.spatialEntries"
+    v-for="({entry, style, resizable, draggable, dragging}) in $store.getters.spatialEntries"
     :data-entry="entry.name"
     :key="entry.name"
     :style="style"
-    :class="{resizable, draggable}">
+    :class="{resizable, draggable, dragging}">
     <ViewEntry :entry="entry"></ViewEntry>
   </div>
 </div>
@@ -19,6 +19,12 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+.spatial-entry {
+  cursor: grab;
+  &.dragging {
+    cursor: grabbing;
+  }
 }
 </style>
 
@@ -55,6 +61,7 @@ export default {
       })
 
     interact('.spatial-entry.draggable')
+      .styleCursor(false)
       .draggable({
         listeners: {
           start: event => {

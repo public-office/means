@@ -101,7 +101,11 @@ export default {
     },
     spatialEntries(state, getters) {
       return state.entries.map(entry => {
+        let dragging = false
+
         let {x, y, z, width, height} = getPosition(entry, state.drag)
+
+        if(state.drag && state.drag.entry === entry.name) dragging = true
 
         let style = {
           position: 'absolute',
@@ -124,7 +128,7 @@ export default {
         const resizable = kind !== 'directory'
         const draggable = true
 
-        return {entry, style, resizable, draggable}
+        return {entry, style, resizable, draggable, dragging}
       })
     },
     entryType(state, getters) {
