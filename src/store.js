@@ -2,8 +2,10 @@ import Path from 'path-browserify'
 import mime from 'mime'
 import _update from 'lodash-es/update'
 import _cloneDeep from 'lodash-es/cloneDeep'
+import _sortBy from 'lodash-es/sortBy'
 
 const CONTENT_BASE = '/content'
+const MAX_Z_INDEX = 999999
 const drive = beaker.hyperdrive.drive(document.location.origin)
 
 async function readFile(file, type = 'buffer') {
@@ -18,14 +20,16 @@ async function readFile(file, type = 'buffer') {
 }
 
 function getPosition(entry, drag) {
-  let {x, y, width, height} = entry.stat.metadata
+  let {x, y, z, width, height} = entry.stat.metadata
 
   x = x ? Number(x) : 0
   y = y ? Number(y) : 0
+  z = z ? Number(z) : 1
   width = width ? Number(width) : undefined
   height = height ? Number(height) : undefined
 
   if(drag && drag.entry === entry.name) {
+    z = MAX_Z_INDEX
     if(drag.resize) {
       width = drag.resize.width
       height = drag.resize.height
@@ -37,7 +41,7 @@ function getPosition(entry, drag) {
     }
   }
 
-  return {x, y, width, height}
+  return {x, y, z, width, height}
 }
 
 export default {
@@ -90,13 +94,14 @@ export default {
     },
     spatialEntries(state, getters) {
       return state.entries.map(entry => {
-        let {x, y, width, height} = getPosition(entry, state.drag)
+        let {x, y, z, width, height} = getPosition(entry, state.drag)
 
         let style = {
           position: 'absolute',
           top: `calc(50% + ${y}px)`,
           left: `calc(50% + ${x}px)`,
-          transform: 'translate(-50%, -50%)'
+          transform: 'translate(-50%, -50%)',
+          zIndex: z
         }
 
         if(width && height) {
@@ -166,8 +171,8 @@ export default {
       commit('update', {entries})
     },
     async updateMetadata({commit}, {entry, metadata}) {
-      await drive.updateMetadata(entry.drivePath, metadata)
       commit('updateLocalEntryMetadata', {entry, metadata})
+      await drive.updateMetadata(entry.drivePath, metadata)
     },
     async identifyEntry({dispatch}, entry) {
       let type
@@ -205,27 +210,47 @@ export default {
     },
     async dragEnd({commit, getters, state, dispatch}) {
       const entry = getters.findEntry(state.drag.entry)
+
       if(entry) {
-        const {x, y, width, height} = getPosition(entry, state.drag)
-        const metadata = {x, y, width, height}
+        const {x, y, z, width, height} = getPosition(entry, state.drag)
+        const metadata = {x, y, z, width, height}
+
+        commit('update', {drag: null})
         await dispatch('updateMetadata', {entry, metadata})
+        await dispatch('restack', {entry})
+      } else {
+        commit('update', {drag: null})
       }
-      commit('update', {drag: null})
     },
     async drop({getters, dispatch}, event) {
       const files = Array.from(event.dataTransfer.files)
 
+      let z = state.entries.length
+
       for(const file of files) {
+        z++
         const pevent = await readFile(file, 'buffer')
         const buffer = pevent.target.result
-        const metadata = {
-          type: file.type
-        }
+        const metadata = {type: file.type, z}
         const path = Path.join(getters.driveBase, file.name)
         await drive.writeFile(path, buffer, {metadata})
       }
 
       dispatch('fetchEntries')
+    },
+    async restack({state, dispatch}, {entry}) {
+      const entries = state.entries.map(e => {
+        let {z} = getPosition(e, state.drag)
+        if(e.name === entry.name) z = MAX_Z_INDEX
+        return {entry: e,  z}
+      })
+      const stacked = _sortBy(entries, 'z').map(({entry}, i) => {
+        return {entry, z: i+1}
+      })
+
+      for(const {entry, z} of stacked) {
+        await dispatch('updateMetadata', {entry, metadata: {z}, fetch: false})
+      }
     }
   },
   mutations: {
