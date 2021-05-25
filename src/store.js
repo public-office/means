@@ -19,6 +19,13 @@ async function readFile(file, type = 'buffer') {
   })
 }
 
+function getCoords({top, left}) {
+  const x = left - (window.innerWidth / 2)
+  const y = top - (window.innerHeight / 2)
+
+  return {x, y}
+}
+
 function getPosition(entry, drag) {
   let {x, y, z, width, height} = entry.stat.metadata
 
@@ -222,8 +229,10 @@ export default {
         commit('update', {drag: null})
       }
     },
-    async drop({getters, dispatch}, event) {
+    async drop({state, getters, dispatch}, event) {
       const files = Array.from(event.dataTransfer.files)
+
+      const {x, y} = getCoords({top: event.clientY, left: event.clientX})
 
       let z = state.entries.length
 
@@ -231,7 +240,7 @@ export default {
         z++
         const pevent = await readFile(file, 'buffer')
         const buffer = pevent.target.result
-        const metadata = {type: file.type, z}
+        const metadata = {type: file.type, x, y, z}
         const path = Path.join(getters.driveBase, file.name)
         await drive.writeFile(path, buffer, {metadata})
       }

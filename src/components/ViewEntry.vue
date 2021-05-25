@@ -72,6 +72,7 @@ export default {
     onLoad(event) {
       const {entry} = this
       const {metadata} = entry.stat
+
       if(!metadata.width || !metadata.height) {
         const [width, height] = [event.target.naturalWidth, event.target.naturalHeight]
 
