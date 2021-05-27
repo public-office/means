@@ -150,6 +150,9 @@ export default {
         const kind = getters.entryKind(entry)
         if(kind === 'text') return await drive.readFile(entry.drivePath, {encoding: 'utf8'})
       }
+    },
+    single(state, getters) {
+      return path => getters.findEntry(path)
     }
   },
   actions: {

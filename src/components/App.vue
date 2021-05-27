@@ -7,6 +7,10 @@
     @identify="identifyEntry(entry)">
   </ViewEntry> -->
 
+  <SingleEntry
+    v-if="single"
+    :entry="single"></SingleEntry>
+
   <SpatialEntries></SpatialEntries>
 
   <!-- <ListEntries
@@ -36,6 +40,7 @@
 import ListEntries from './ListEntries.vue'
 import SpatialEntries from './SpatialEntries.vue'
 import ViewEntry from './ViewEntry.vue'
+import SingleEntry from './SingleEntry.vue'
 
 // import FileType from 'file-type'
 // import mime from 'mime'
@@ -44,10 +49,16 @@ export default {
   components: {
     ListEntries,
     SpatialEntries,
-    ViewEntry
+    ViewEntry,
+    SingleEntry
   },
   created() {
     this.$store.dispatch('init', this.$route.path)
+  },
+  computed: {
+    single() {
+      return this.$store.getters.single(this.$route.path.replace(/^\//, ''))
+    }
   }
 }
 

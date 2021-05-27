@@ -1,19 +1,17 @@
 <template>
-<div class="view-entry" :class="kind">
-  <!-- <router-link :to="entry.path"> -->
-    <img :draggable="false" v-if="kind === 'image'" :src="entry.drivePath" @load="onLoad" />
-    <video preload="metadata" v-else-if="kind === 'video'" :src="entry.drivePath" controls></video>
-    <!-- <textarea class="view-entry" v-else-if="kind === 'text'" v-model="text"></textarea> -->
-    <div v-else-if="kind === 'text'"><pre>{{text}}</pre></div>
-    <div v-else-if="kind === 'directory'">
-      <i class="material-icons">folder</i><br />
-      {{entry.name}}
-    </div>
-    <div v-else>
-      <i class="material-icons">insert_drive_file</i><br />
-      {{entry.name}}
-    </div>
-  <!-- </router-link> -->
+<div class="view-entry" :class="kind" @click="onClick" @dblclick="onDblclick">
+  <img :draggable="false" v-if="kind === 'image'" :src="entry.drivePath" @load="onLoad" />
+  <video preload="metadata" v-else-if="kind === 'video'" :src="entry.drivePath" controls></video>
+  <!-- <textarea class="view-entry" v-else-if="kind === 'text'" v-model="text"></textarea> -->
+  <div v-else-if="kind === 'text'"><pre>{{text}}</pre></div>
+  <div v-else-if="kind === 'directory'">
+    <i class="material-icons">folder</i><br />
+    {{entry.name}}
+  </div>
+  <div v-else>
+    <i class="material-icons">insert_drive_file</i><br />
+    {{entry.name}}
+  </div>
 </div>
 </template>
 
@@ -66,6 +64,10 @@ export default {
     // }
   },
   methods: {
+    onClick() {},
+    onDblclick() {
+      this.$router.push(this.entry.path)
+    },
     identify() {
       if(!this.type) this.$store.dispatch('identifyEntry', this.entry)
     },
