@@ -232,7 +232,11 @@ export default {
       await drive.updateMetadata(entry.drivePath, metadata)
     },
     async deleteEntry({dispatch}, entry) {
-      await drive.unlink(entry.drivePath)
+      if(entry.isDirectory) {
+        await drive.rmdir(entry.drivePath, {recursive: true})
+      } else {
+        await drive.unlink(entry.drivePath)
+      }
       dispatch('fetchEntries')
     },
     async identifyEntry({dispatch}, entry) {

@@ -46,7 +46,7 @@ export default {
     },
     async deleteEntry() {
       if(confirm(`Delete ${this.entry.name}?`)) {
-        this.$router.replace(this.entry.base)
+        this.$router.replace(this.entry.parent)
         this.$store.dispatch('deleteEntry', this.entry)
       }
     },
