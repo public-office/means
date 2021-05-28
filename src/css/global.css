@@ -10,6 +10,7 @@
   background: none;
   text-decoration: none;
   outline: none;
+  color: inherit;
 }
 
 :root {
@@ -27,7 +28,28 @@ body {
   background: white;
 }
 
+a {
+  color: blue;
+}
+a:hover {
+  color: red;
+}
+
 pre {
   white-space: pre-wrap;
   font-family: monospace;
+}
+
+.pill {
+  background: white;
+  box-shadow: 0 0.3rem 0.5rem rgba(0, 0, 0, 0.2);
+  border-radius: 1em;
+  padding: 0.5rem 1rem;
+  display: inline-block;
+}
+.pill i {
+  font-size: 1em;
+  line-height: 0;
+  vertical-align: middle;
+  position: relative;
 }

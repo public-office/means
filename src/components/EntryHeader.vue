@@ -1,14 +1,16 @@
 <template>
 <header>
-  <div>
-    <h1><i class="material-icons">{{entry.icon}}</i> {{entry.path}}</h1>
-    <nav>
-      <a v-if="entry.isDirectory" @click.stop="createFolder" href="#">Create folder</a>
-      <a v-if="entry.isDirectory" @click.stop="createText" href="#">Create text</a>
-      <a v-if="entry.path !== '/'" @click.stop="deleteEntry" href="#">Delete</a>
-    </nav>
+  <div class="main">
+    <router-link v-if="$route.path !== '/'" class="back pill" :to="entry.parent">
+      <i class="material-icons">arrow_back</i>
+    </router-link>
+    <h1><i class="material-icons">{{entry.icon}}</i> {{entry.displayPath}}</h1>
   </div>
-  <router-link v-if="$route.path !== '/'" class="close" :to="entry.parent">Close</router-link>
+  <nav class="right">
+    <a class="pill" v-if="entry.isDirectory" @click.stop="createFolder" href="#"><i class="material-icons">folder</i> add folder</a>
+    <a class="pill" v-if="entry.isDirectory" @click.stop="createText" href="#"><i class="material-icons">description</i> add text</a>
+    <a class="pill" v-if="entry.path !== '/'" @click.stop="deleteEntry" href="#"><i class="material-icons">delete</i> delete {{entry.form}}</a>
+  </nav>
 </header>
 </template>
 
@@ -21,17 +23,34 @@ header {
   display: flex;
   justify-content: space-between;
   z-index: 2;
-  h1 {
-    i {
-      font-size: 1em;
-      vertical-align: middle;
-      position: relative;
-      top: -0.12em;
+  .main {
+    display: flex;
+    align-items: flex-start;
+    .back {
+      margin-right: 1em;
     }
   }
-  nav {
-    a {
-      display: block;
+  h1 {
+    font-size: 2rem;
+    margin-top: 0.4rem;
+    i {
+      vertical-align: middle;
+      position: relative;
+      top: -0.07em;
+      margin-right: 0.3rem;
+    }
+  }
+  .close {
+    margin-left: 2em;
+    svg {
+      width: auto;
+      height: 0.9em;
+      position: relative;
+      top: 0.1rem;
+      line {
+        stroke: currentColor;
+        vector-effect: non-scaling-stroke;
+      }
     }
   }
 }

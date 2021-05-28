@@ -122,8 +122,13 @@ export default {
         const segs = path.split('/')
         const name = segs[segs.length-1]
 
+        const displayPath = (path !== '/' && path.startsWith('/')) ? path.replace(/^\//, '') : path
+
+        const form = isDirectory ? 'folder' : 'file'
+
         return {
           path,
+          displayPath,
           drivePath,
           base,
           driveBase,
@@ -133,6 +138,7 @@ export default {
           stat,
           isDirectory,
           isFile,
+          form,
           type,
           icon
         }

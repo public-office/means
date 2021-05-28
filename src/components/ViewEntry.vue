@@ -1,6 +1,6 @@
 <template>
 <div class="view-entry" :class="{[entry.kind]: true, single}" @click="onClick" @dblclick="onDblclick">
-  <a href="#" class="save" v-if="changed" @click.prevent="save">Save</a>
+  <a href="#" class="pill save" v-if="changed" @click.prevent="save">save changes</a>
 
   <img :draggable="false" v-if="entry.kind === 'image'" :src="entry.drivePath" @load="onLoad" />
   <video preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.drivePath" controls></video>
@@ -57,10 +57,19 @@
     }
   }
   &.image {
-    img {
-      width: 100%;
-      height: auto;
-      display: block;
+    &:not(.single) {
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+    }
+    &.single {
+      img {
+        max-width: calc(100vw - var(--pad) * 2);
+        max-height: calc(100vh - 14rem);
+        object-fit: contain;
+      }
     }
   }
 }
@@ -105,7 +114,19 @@ export default {
       const {metadata} = entry.stat
 
       if(!metadata.width || !metadata.height) {
-        const [width, height] = [event.target.naturalWidth, event.target.naturalHeight]
+        let [width, height] = [event.target.naturalWidth, event.target.naturalHeight]
+        const [maxWidth, maxHeight] = [640, 640]
+
+        if(width > maxWidth) {
+          height *= maxWidth / width
+          width = maxWidth
+        }
+        if(height > maxHeight) {
+          width *= maxHeight / height
+          height = maxHeight
+        }
+
+        console.warn(width, height)
 
         this.$store.dispatch('updateMetadata', {entry, metadata: {width, height}})
       }
