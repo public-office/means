@@ -7,6 +7,7 @@
     <h1><i class="material-icons">{{entry.icon}}</i> {{entry.displayPath}}</h1>
   </div>
   <nav class="right">
+    <a class="pill" v-if="entry.isDirectory" @click.stop="uploadFile" href="#"><i class="material-icons">insert_drive_file</i> upload file</a>
     <a class="pill" v-if="entry.isDirectory" @click.stop="createFolder" href="#"><i class="material-icons">folder</i> add folder</a>
     <a class="pill" v-if="entry.isDirectory" @click.stop="createText" href="#"><i class="material-icons">description</i> add text</a>
     <a class="pill" v-if="entry.path !== '/'" @click.stop="deleteEntry" href="#"><i class="material-icons">delete</i> delete {{entry.form}}</a>
@@ -77,6 +78,17 @@ export default {
     async createText() {
       const entry = await this.$store.dispatch('createText', {base: this.entry.base, driveBase: this.entry.driveBase})
       this.$router.push(entry.path)
+    },
+    async uploadFile() {
+      const $input = document.createElement('input')
+      $input.type = 'file'
+      $input.multiple = true
+
+      $input.onchange = () => {
+        this.$store.dispatch('uploadFiles', {files: $input.files})
+      }
+
+      $input.click()
     }
   }
 }

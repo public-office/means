@@ -295,13 +295,20 @@ export default {
       }
     },
     async drop({state, getters, dispatch}, event) {
-      const files = Array.from(event.dataTransfer.files)
+      const files = event.dataTransfer.files
 
       const {x, y} = getCoords({top: event.clientY, left: event.clientX})
 
+      dispatch('uploadFiles', {files, x, y})
+    },
+    async uploadFiles({state, getters, dispatch}, {files, x, y}) {
+      x = x || 0
+      y = y || 0
+
+      let filesArr = Array.from(files)
       let z = state.entries.length
 
-      for(const file of files) {
+      for(const file of filesArr) {
         z++
         const pevent = await readFile(file, 'buffer')
         const buffer = pevent.target.result

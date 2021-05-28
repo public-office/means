@@ -126,8 +126,6 @@ export default {
           height = maxHeight
         }
 
-        console.warn(width, height)
-
         this.$store.dispatch('updateMetadata', {entry, metadata: {width, height}})
       }
     },
