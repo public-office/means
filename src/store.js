@@ -350,6 +350,10 @@ export default {
 
       await drive.writeFile(path, '', {encoding: 'utf8', metadata})
       await dispatch('fetchEntries')
+    },
+    async updateText({dispatch}, {entry, text}) {
+      await drive.writeFile(entry.drivePath, text, {encoding: 'utf8'})
+      await dispatch('fetchEntries')
     }
   },
   mutations: {
