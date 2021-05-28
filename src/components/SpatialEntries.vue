@@ -1,8 +1,6 @@
 <template>
 <div class="spatial-entries" @dragover.prevent @drop.prevent="onDrop">
-  <header>
-    <h1>{{base}}</h1>
-  </header>
+  <EntryHeader v-if="$store.getters.baseEntry" :entry="$store.getters.baseEntry"></EntryHeader>
   <div
     class="spatial-entry"
     v-for="({entry, style, resizable, draggable, dragging}) in $store.getters.spatialEntries"
@@ -51,9 +49,11 @@ header {
 <script>
 import interact from 'interactjs'
 import ViewEntry from './ViewEntry.vue'
+import EntryHeader from './EntryHeader.vue'
 
 export default {
   components: {
+    EntryHeader,
     ViewEntry
   },
   computed: {

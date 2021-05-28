@@ -55,7 +55,8 @@ export default {
   state: {
     path: '/',
     info: {},
-    stat: {},
+    stat: null,
+    baseStat: null,
     entries: [],
     drag: null
   },
@@ -66,11 +67,14 @@ export default {
     name(state) {
       return Path.basename(state.path)
     },
-    base(state, getters) {
-      return getters.isFile ? Path.dirname(state.path) : state.path
-    },
-    driveBase(state, getters) {
-      return Path.join(CONTENT_BASE, getters.base)
+    baseEntry(state, getters) {
+      let path = state.path
+      if(state.stat) {
+        if(state.stat.isFile()) {
+          path = Path.dirname(path)
+        }
+      }
+      if(path && state.baseStat) return getters.createEntry(path, state.baseStat)
     },
     isFile(state) {
       return state.stat && state.stat.isFile && state.stat.isFile()
@@ -82,7 +86,7 @@ export default {
       return Path.dirname(getters.base)
     },
     entry(state, getters) {
-      return getters.createEntry(getters.name, getters.stat)
+      return getters.createEntry(state.path, state.stat)
     },
     findEntry(state, getters) {
       return path => {
@@ -91,27 +95,39 @@ export default {
       }
     },
     createEntry(state, getters) {
-      return (name, stat) => {
+      return (path, stat) => {
         const isDirectory = stat.isDirectory()
         const isFile = stat.isFile()
 
         const type = stat.metadata.type
         let kind = isDirectory ? 'directory' : 'file'
 
-        if(type === 'directory') kind = 'directory'
-        if(type.startsWith('image/')) kind = 'image'
-        if(type.startsWith('video/')) kind = 'video'
-        if(type.startsWith('text/')) kind = 'text'
+        if(type) {
+          if(type === 'directory') kind = 'directory'
+          if(type.startsWith('image/')) kind = 'image'
+          if(type.startsWith('video/')) kind = 'video'
+          if(type.startsWith('text/')) kind = 'text'
+        }
 
         let icon = (kind === 'directory') ? 'folder' : 'insert_drive_file'
         if(kind === 'image') icon = 'image'
         if(kind === 'video') icon = 'movie'
 
+        const base = isFile ? Path.dirname(path) : path
+        const driveBase = Path.join(CONTENT_BASE, base)
+
+        const parent = isDirectory ? Path.dirname(base) : base
+        const drivePath = Path.join(CONTENT_BASE, path)
+
+        const segs = path.split('/')
+        const name = segs[segs.length-1]
+
         return {
-          path: Path.join(getters.base, name),
-          drivePath: Path.join(getters.driveBase, name),
-          base: getters.base,
-          driveBase: getters.driveBase,
+          path,
+          drivePath,
+          base,
+          driveBase,
+          parent,
           kind,
           name,
           stat,
@@ -167,29 +183,46 @@ export default {
       if(!results.length) await drive.mkdir(CONTENT_BASE)
 
       commit('update', {path})
+      await dispatch('fetchBase')
       dispatch('fetchEntries')
     },
     async navigate({commit, dispatch}, path) {
       commit('update', {path})
+      await dispatch('fetchBase')
       dispatch('fetchEntries')
     },
-    async fetchEntries({commit, getters}) {
+    async fetchBase({state, commit, getters}) {
       const info = await drive.getInfo()
       commit('update', {info})
+ 
+      let baseStat
 
+      const stat = await drive.stat(getters.drivePath)
+      if(stat.isDirectory()) {
+        baseStat = stat
+      } else {
+        const base = Path.dirname(state.path)
+        const driveBase = Path.join(CONTENT_BASE, base)
+        baseStat = await drive.stat(driveBase)
+      }
+
+      commit('update', {baseStat})
+    },
+    async fetchEntries({state, commit, getters}) {
       const stat = await drive.stat(getters.drivePath)
       commit('update', {stat})
 
-      let entries = await drive.readdir(getters.driveBase)
+      let entries = await drive.readdir(getters.baseEntry.driveBase)
 
       const stats = await Promise.all(entries.map(async entry => {
-        const drivePath = Path.join(getters.driveBase, entry)
+        const drivePath = Path.join(getters.baseEntry.driveBase, entry)
         return await drive.stat(drivePath)
       }))
 
       entries = entries.map((name, i) => {
         const stat = stats[i]
-        return getters.createEntry(name, stat)
+        const path = Path.join(getters.baseEntry.base, name)
+        return getters.createEntry(path, stat)
       })
 
       commit('update', {entries})
@@ -262,7 +295,7 @@ export default {
         const pevent = await readFile(file, 'buffer')
         const buffer = pevent.target.result
         const metadata = {type: file.type, x, y, z}
-        const path = Path.join(getters.driveBase, file.name)
+        const path = Path.join(getters.baseEntry.drivePath, file.name)
         await drive.writeFile(path, buffer, {metadata})
       }
 

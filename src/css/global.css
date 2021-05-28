@@ -20,3 +20,8 @@ body {
   font-size: 1.4rem;
   background: white;
 }
+
+pre {
+  white-space: pre-wrap;
+  font-family: monospace;
+}

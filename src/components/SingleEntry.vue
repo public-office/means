@@ -1,36 +1,11 @@
 <template>
 <div class="single">
-  <header>
-    <div>
-      <h1><i class="material-icons">{{entry.icon}}</i> {{entry.name}}</h1>
-      <nav>
-        <a @click.stop="deleteEntry" href="#">Delete</a>
-      </nav>
-    </div>
-    <pre>{{entry}}</pre>
-    <router-link class="close" to="/">Close</router-link>
-  </header>
+  <EntryHeader :entry="entry"></EntryHeader>
   <ViewEntry :entry="entry"></ViewEntry>
 </div>
 </template>
 
 <style scoped lang="scss">
-header {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  h1 {
-    i {
-      font-size: 1em;
-      vertical-align: middle;
-      position: relative;
-      top: -0.12em;
-    }
-  }
-}
 .single {
   position: absolute;
   top: 0; left: 0;
@@ -52,15 +27,17 @@ figcaption {
 
 <script>
 import ViewEntry from './ViewEntry.vue'
+import EntryHeader from './EntryHeader.vue'
 
 export default {
   components: {
-    ViewEntry
+    ViewEntry,
+    EntryHeader
   },
   props: {
     entry: Object
   },
-  methods: {
+    methods: {
     async deleteEntry() {
       if(confirm(`Delete ${this.entry.name}?`)) {
         this.$router.replace(this.entry.base)
