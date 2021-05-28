@@ -326,6 +326,30 @@ export default {
       const z = state.entries.length
       await dispatch('updateMetadata', {entry: {drivePath: path}, metadata: {z}})
       await dispatch('fetchEntries')
+    },
+    async createText({dispatch, state}, {base}) {
+      const ext = 'txt'
+      let name = 'untitled'
+
+      const nums = state.entries
+        .map(e => e.name)
+        .map(n => n.match(/untitled( \d+)?(\.txt)?$/i))
+        .filter(m => m)
+        .map(m => m[1] ? Number(m[1].trim()) : 0)
+
+      const metadata = {z: state.entries.length, type: 'text/plain'}
+
+      const maxNum = nums.length ? Math.max(...nums) : null
+
+      const n = maxNum !== null ? maxNum+1 : null
+
+      if(n) name = `${name} ${n}`
+
+      const filename = [name, ext].join('.')
+      const path = Path.join(base, filename)
+
+      await drive.writeFile(path, '', {encoding: 'utf8', metadata})
+      await dispatch('fetchEntries')
     }
   },
   mutations: {

@@ -2,8 +2,7 @@
 <div class="view-entry" :class="{[entry.kind]: true, single}" @click="onClick" @dblclick="onDblclick">
   <img :draggable="false" v-if="entry.kind === 'image'" :src="entry.drivePath" @load="onLoad" />
   <video preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.drivePath" controls></video>
-  <!-- <textarea class="view-entry" v-else-if="kind === 'text'" v-model="text"></textarea> -->
-  <textarea v-else-if="entry.kind === 'text'" v-model="text"></textarea>
+  <textarea v-else-if="entry.kind === 'text'" v-model="text" :placeholder="single ? 'Write here...' : undefined"></textarea>
   <div v-else-if="entry.kind === 'directory'">
     <i class="material-icons">folder</i><br />
     {{entry.name}}
@@ -25,9 +24,10 @@
     }
   }
   &.text {
+    box-shadow: 0 0.2rem 0.75rem rgba(0, 0, 0, 0.3);
     &:not(.single) {
-      border: 1px solid;
       height: 100%;
+      background: white;
       textarea {
         pointer-events: none;
       }
@@ -39,7 +39,6 @@
       left: 0;
       bottom: 0;
       transform: none!important;
-      border-top: 1px solid;
     }
     textarea {
       display: block;

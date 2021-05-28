@@ -44,7 +44,6 @@ header {
 }
 .spatial-entry {
   cursor: grab;
-  overflow: hidden;
   &.dragging {
     cursor: grabbing;
   }

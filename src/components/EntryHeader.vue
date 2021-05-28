@@ -4,6 +4,7 @@
     <h1><i class="material-icons">{{entry.icon}}</i> {{entry.path}}</h1>
     <nav>
       <a v-if="entry.isDirectory" @click.stop="createFolder" href="#">Create folder</a>
+      <a v-if="entry.isDirectory" @click.stop="createText" href="#">Create text</a>
       <a v-if="entry.path !== '/'" @click.stop="deleteEntry" href="#">Delete</a>
     </nav>
   </div>
@@ -42,8 +43,6 @@ export default {
     entry: Object
   },
   methods: {
-    createFolder() {
-    },
     async deleteEntry() {
       if(confirm(`Delete ${this.entry.name}?`)) {
         this.$router.replace(this.entry.parent)
@@ -55,6 +54,9 @@ export default {
       if(name) {
         this.$store.dispatch('createDirectory', {base: this.entry.driveBase, name})
       }
+    },
+    async createText() {
+      this.$store.dispatch('createText', {base: this.entry.driveBase})
     }
   }
 }
