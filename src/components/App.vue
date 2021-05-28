@@ -8,7 +8,7 @@
   </ViewEntry> -->
 
   <SingleEntry
-    v-if="single"
+    v-if="single && single.isFile"
     :entry="single"></SingleEntry>
 
   <SpatialEntries></SpatialEntries>
@@ -55,9 +55,14 @@ export default {
   created() {
     this.$store.dispatch('init', this.$route.path)
   },
+  watch: {
+    $route() {
+      this.$store.dispatch('navigate', this.$route.path)
+    }
+  },
   computed: {
     single() {
-      return this.$store.getters.single(this.$route.path.replace(/^\//, ''))
+      return this.$store.getters.single(this.$route.path)
     }
   }
 }

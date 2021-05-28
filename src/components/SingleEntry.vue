@@ -2,11 +2,12 @@
 <div class="single">
   <header>
     <div>
-      <h1>{{entry.name}}</h1>
+      <h1><i class="material-icons">{{entry.icon}}</i> {{entry.name}}</h1>
       <nav>
         <a href="#">Delete</a>
       </nav>
     </div>
+    <pre>{{entry}}</pre>
     <router-link class="close" to="/">Close</router-link>
   </header>
   <ViewEntry :entry="entry"></ViewEntry>
@@ -21,11 +22,19 @@ header {
   padding: 1rem;
   display: flex;
   justify-content: space-between;
+  h1 {
+    i {
+      font-size: 1em;
+      vertical-align: middle;
+      position: relative;
+      top: -0.12em;
+    }
+  }
 }
 .single {
   position: absolute;
   top: 0; left: 0;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   width: 100%; height: 100%;
   z-index: 3;
 }

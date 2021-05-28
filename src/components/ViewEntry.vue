@@ -1,10 +1,10 @@
 <template>
-<div class="view-entry" :class="kind" @click="onClick" @dblclick="onDblclick">
-  <img :draggable="false" v-if="kind === 'image'" :src="entry.drivePath" @load="onLoad" />
-  <video preload="metadata" v-else-if="kind === 'video'" :src="entry.drivePath" controls></video>
+<div class="view-entry" :class="entry.kind" @click="onClick" @dblclick="onDblclick">
+  <img :draggable="false" v-if="entry.kind === 'image'" :src="entry.drivePath" @load="onLoad" />
+  <video preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.drivePath" controls></video>
   <!-- <textarea class="view-entry" v-else-if="kind === 'text'" v-model="text"></textarea> -->
-  <div v-else-if="kind === 'text'"><pre>{{text}}</pre></div>
-  <div v-else-if="kind === 'directory'">
+  <div v-else-if="entry.kind === 'text'"><pre>{{text}}</pre></div>
+  <div v-else-if="entry.kind === 'directory'">
     <i class="material-icons">folder</i><br />
     {{entry.name}}
   </div>
@@ -50,18 +50,6 @@ export default {
   }),
   created() {
     this.identify()
-    console.warn('type', this.type)
-  },
-  computed: {
-    type() {
-      return this.$store.getters.entryType(this.entry)
-    },
-    kind() {
-      return this.$store.getters.entryKind(this.entry)
-    },
-    // text() {
-    //   return this.$store.getters.entryText(this.entry)
-    // }
   },
   methods: {
     onClick() {},
@@ -69,7 +57,7 @@ export default {
       this.$router.push(this.entry.path)
     },
     identify() {
-      if(!this.type) this.$store.dispatch('identifyEntry', this.entry)
+      if(!this.entry.type) this.$store.dispatch('identifyEntry', this.entry)
     },
     onLoad(event) {
       const {entry} = this

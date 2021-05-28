@@ -35,7 +35,7 @@ function getPosition(entry, drag) {
   width = width ? Number(width) : undefined
   height = height ? Number(height) : undefined
 
-  if(drag && drag.entry === entry.name) {
+  if(drag && drag.entry === entry.path) {
     z = MAX_Z_INDEX
     if(drag.resize) {
       width = drag.resize.width
@@ -85,17 +85,38 @@ export default {
       return getters.createEntry(getters.name, getters.stat)
     },
     findEntry(state, getters) {
-      return name => {
-        return state.entries.find(entry => entry.name === name)
+      return path => {
+        const entry = state.entries.find(entry => entry.path === path)
+        return entry
       }
     },
     createEntry(state, getters) {
       return (name, stat) => {
+        const isDirectory = stat.isDirectory()
+        const isFile = stat.isFile()
+
+        const type = stat.metadata.type
+        let kind = isDirectory ? 'directory' : 'file'
+
+        if(type === 'directory') kind = 'directory'
+        if(type.startsWith('image/')) kind = 'image'
+        if(type.startsWith('video/')) kind = 'video'
+        if(type.startsWith('text/')) kind = 'text'
+
+        let icon = (kind === 'directory') ? 'folder' : 'insert_drive_file'
+        if(kind === 'image') icon = 'image'
+        if(kind === 'video') icon = 'movie'
+
         return {
           path: Path.join(getters.base, name),
           drivePath: Path.join(getters.driveBase, name),
+          kind,
           name,
-          stat
+          stat,
+          isDirectory,
+          isFile,
+          type,
+          icon
         }
       }
     },
@@ -123,32 +144,15 @@ export default {
           }
         }
 
-        const kind = getters.entryKind(entry)
-
-        const resizable = kind !== 'directory'
+        const resizable = entry.kind !== 'directory'
         const draggable = true
 
         return {entry, style, resizable, draggable, dragging}
       })
     },
-    entryType(state, getters) {
-      return entry => entry.stat.metadata.type
-    },
-    entryKind(state, getters) {
-      return entry => {
-        const type = getters.entryType(entry)
-        if(!type) return
-        if(type === 'directory') return 'directory'
-        if(type.startsWith('image/')) return 'image'
-        if(type.startsWith('video/')) return 'video'
-        if(type.startsWith('text/')) return 'text'
-        return 'file'
-      }
-    },
     getEntryText(state, getters) {
       return async entry => {
-        const kind = getters.entryKind(entry)
-        if(kind === 'text') return await drive.readFile(entry.drivePath, {encoding: 'utf8'})
+        if(entry.kind === 'text') return await drive.readFile(entry.drivePath, {encoding: 'utf8'})
       }
     },
     single(state, getters) {
@@ -160,6 +164,10 @@ export default {
       const results = await drive.query({path: CONTENT_BASE})
       if(!results.length) await drive.mkdir(CONTENT_BASE)
 
+      commit('update', {path})
+      dispatch('fetchEntries')
+    },
+    async navigate({commit, dispatch}, path) {
       commit('update', {path})
       dispatch('fetchEntries')
     },

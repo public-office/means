@@ -1,10 +1,13 @@
 <template>
 <div class="spatial-entries" @dragover.prevent @drop.prevent="onDrop">
+  <header>
+    <h1>{{base}}</h1>
+  </header>
   <div
     class="spatial-entry"
     v-for="({entry, style, resizable, draggable, dragging}) in $store.getters.spatialEntries"
-    :data-entry="entry.name"
-    :key="entry.name"
+    :data-entry="entry.path"
+    :key="entry.path"
     :style="style"
     :class="{resizable, draggable, dragging}">
     <ViewEntry :entry="entry"></ViewEntry>
@@ -13,6 +16,22 @@
 </template>
 
 <style scoped lang="scss">
+header {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  h1 {
+    i {
+      font-size: 1em;
+      vertical-align: middle;
+      position: relative;
+      top: -0.12em;
+    }
+  }
+}
 .spatial-entries {
   position: absolute;
   top: 0; left: 0;
@@ -36,6 +55,11 @@ import ViewEntry from './ViewEntry.vue'
 export default {
   components: {
     ViewEntry
+  },
+  computed: {
+    base() {
+      return this.$store.getters.base
+    }
   },
   mounted() {
     interact('.spatial-entry.resizable')
