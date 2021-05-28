@@ -314,6 +314,11 @@ export default {
       for(const {entry, z} of stacked) {
         await dispatch('updateMetadata', {entry, metadata: {z}, fetch: false})
       }
+    },
+    async createDirectory({dispatch}, {base, name}) {
+      const path = Path.join(base, name)
+      await drive.mkdir(path)
+      await dispatch('fetchEntries')
     }
   },
   mutations: {

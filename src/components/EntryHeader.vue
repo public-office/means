@@ -49,6 +49,12 @@ export default {
         this.$router.replace(this.entry.base)
         this.$store.dispatch('deleteEntry', this.entry)
       }
+    },
+    async createFolder() {
+      const name = prompt('Enter folder name')
+      if(name) {
+        this.$store.dispatch('createDirectory', {base: this.entry.driveBase, name})
+      }
     }
   }
 }
