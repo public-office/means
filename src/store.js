@@ -189,12 +189,12 @@ export default {
       const results = await drive.query({path: CONTENT_BASE})
       if(!results.length) await drive.mkdir(CONTENT_BASE)
 
-      commit('update', {path})
+      commit('updatePath', path)
       await dispatch('fetchBase')
       dispatch('fetchEntries')
     },
     async navigate({commit, dispatch}, path) {
-      commit('update', {path})
+      commit('updatePath', path)
       await dispatch('fetchBase')
       dispatch('fetchEntries')
     },
@@ -379,6 +379,9 @@ export default {
       for(let [key, value] of Object.entries(obj)) {
         state[key] = value
       }
+    },
+    updatePath(state, path) {
+      state.path = decodeURIComponent(path)
     },
     updateLocalEntryMetadata(state, {entry, metadata}) {
       state.entries = state.entries.map(e => {
