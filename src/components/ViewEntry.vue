@@ -111,8 +111,7 @@ export default {
       }
     },
     async save() {
-      const {entry} = this
-      const text = this.text
+      const {entry, text} = this
       await this.$store.dispatch('updateText', {entry, text})
       this.changed = false
     }
