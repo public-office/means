@@ -6,8 +6,8 @@
   "author": "Matt Lenz <matt@mattlenz.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "cp src/dev.html .ui/ui.html && vite",
-    "build": "vite build && cat .ui/manifest.json | node src/index.html.js > .ui/ui.html"
+    "dev": "cp src/dev.html dev/index.html && vite",
+    "build": "vite build && cat dist/manifest.json | node src/index.html.js > dist/index.html"
   },
   "devDependencies": {
     "sass": "^1.32.12",
