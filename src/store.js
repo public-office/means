@@ -122,7 +122,7 @@ export default {
         const segs = path.split('/')
         const name = segs[segs.length-1]
 
-        const displayPath = (path !== '/' && path.startsWith('/')) ? path.replace(/^\//, '') : path
+        const displayPath = path === '/' ? 'Home' : path.replace(/^\//, '')
 
         const form = isDirectory ? 'folder' : 'file'
 
@@ -333,7 +333,7 @@ export default {
       await dispatch('updateMetadata', {entry: {drivePath: path}, metadata: {z}})
       await dispatch('fetchEntries')
     },
-    async createText({dispatch, state}, {base}) {
+    async createText({dispatch, state, getters}, {base, driveBase}) {
       const ext = 'txt'
       let name = 'untitled'
 
@@ -352,10 +352,15 @@ export default {
       if(n) name = `${name} ${n}`
 
       const filename = [name, ext].join('.')
+      const drivePath = Path.join(driveBase, filename)
       const path = Path.join(base, filename)
 
-      await drive.writeFile(path, '', {encoding: 'utf8', metadata})
+      await drive.writeFile(drivePath, '', {encoding: 'utf8', metadata})
       await dispatch('fetchEntries')
+
+      const entry = getters.findEntry(path)
+
+      return entry
     },
     async updateText({dispatch}, {entry, text}) {
       await drive.writeFile(entry.drivePath, text, {encoding: 'utf8'})

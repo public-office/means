@@ -75,7 +75,8 @@ export default {
       }
     },
     async createText() {
-      this.$store.dispatch('createText', {base: this.entry.driveBase})
+      const entry = await this.$store.dispatch('createText', {base: this.entry.base, driveBase: this.entry.driveBase})
+      this.$router.push(entry.path)
     }
   }
 }
