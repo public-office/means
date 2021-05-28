@@ -316,12 +316,14 @@ export default {
       })
 
       for(const {entry, z} of stacked) {
-        await dispatch('updateMetadata', {entry, metadata: {z}, fetch: false})
+        await dispatch('updateMetadata', {entry, metadata: {z}})
       }
     },
-    async createDirectory({dispatch}, {base, name}) {
+    async createDirectory({dispatch, state}, {base, name}) {
       const path = Path.join(base, name)
       await drive.mkdir(path)
+      const z = state.entries.length
+      await dispatch('updateMetadata', {entry: {drivePath: path}, metadata: {z}})
       await dispatch('fetchEntries')
     }
   },
