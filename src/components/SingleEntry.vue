@@ -4,7 +4,7 @@
     <div>
       <h1><i class="material-icons">{{entry.icon}}</i> {{entry.name}}</h1>
       <nav>
-        <a href="#">Delete</a>
+        <a @click.stop="deleteEntry" href="#">Delete</a>
       </nav>
     </div>
     <pre>{{entry}}</pre>
@@ -59,6 +59,14 @@ export default {
   },
   props: {
     entry: Object
+  },
+  methods: {
+    async deleteEntry() {
+      if(confirm(`Delete ${this.entry.name}?`)) {
+        this.$router.replace(this.entry.base)
+        this.$store.dispatch('deleteEntry', this.entry)
+      }
+    }
   }
 }
 </script>

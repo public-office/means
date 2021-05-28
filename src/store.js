@@ -110,6 +110,8 @@ export default {
         return {
           path: Path.join(getters.base, name),
           drivePath: Path.join(getters.driveBase, name),
+          base: getters.base,
+          driveBase: getters.driveBase,
           kind,
           name,
           stat,
@@ -195,6 +197,10 @@ export default {
     async updateMetadata({commit}, {entry, metadata}) {
       commit('updateLocalEntryMetadata', {entry, metadata})
       await drive.updateMetadata(entry.drivePath, metadata)
+    },
+    async deleteEntry({dispatch}, entry) {
+      await drive.unlink(entry.drivePath)
+      dispatch('fetchEntries')
     },
     async identifyEntry({dispatch}, entry) {
       let type
