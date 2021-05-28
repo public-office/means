@@ -1,14 +1,16 @@
 <template>
 <div class="spatial-entries" @dragover.prevent @drop.prevent="onDrop">
   <EntryHeader v-if="$store.getters.baseEntry" :entry="$store.getters.baseEntry"></EntryHeader>
-  <div
-    class="spatial-entry"
-    v-for="({entry, style, resizable, draggable, dragging}) in $store.getters.spatialEntries"
-    :data-entry="entry.path"
-    :key="entry.path"
-    :style="style"
-    :class="{resizable, draggable, dragging}">
-    <ViewEntry :entry="entry"></ViewEntry>
+  <div class="container">
+    <div
+      class="spatial-entry"
+      v-for="({entry, style, resizable, draggable, dragging}) in $store.getters.spatialEntries"
+      :data-entry="entry.path"
+      :key="entry.path"
+      :style="style"
+      :class="{resizable, draggable, dragging}">
+      <ViewEntry :entry="entry"></ViewEntry>
+    </div>
   </div>
 </div>
 </template>
@@ -30,13 +32,15 @@ header {
     }
   }
 }
-.spatial-entries {
+.container {
+  z-index: 1;
+}
+.container, .spatial-entries {
   position: absolute;
   top: 0; left: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  z-index: 1;
 }
 .spatial-entry {
   cursor: grab;

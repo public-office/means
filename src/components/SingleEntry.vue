@@ -36,14 +36,6 @@ export default {
   },
   props: {
     entry: Object
-  },
-    methods: {
-    async deleteEntry() {
-      if(confirm(`Delete ${this.entry.name}?`)) {
-        this.$router.replace(this.entry.base)
-        this.$store.dispatch('deleteEntry', this.entry)
-      }
-    }
   }
 }
 </script>
