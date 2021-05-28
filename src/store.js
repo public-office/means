@@ -164,8 +164,9 @@ export default {
 
         const resizable = entry.kind !== 'directory'
         const draggable = true
+        const aspect = entry.kind !== 'text'
 
-        return {entry, style, resizable, draggable, dragging}
+        return {entry, style, resizable, draggable, dragging, aspect}
       })
     },
     getEntryText(state, getters) {

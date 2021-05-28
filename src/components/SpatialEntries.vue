@@ -4,11 +4,11 @@
   <div class="container">
     <div
       class="spatial-entry"
-      v-for="({entry, style, resizable, draggable, dragging}) in $store.getters.spatialEntries"
+      v-for="({entry, style, resizable, draggable, dragging, aspect}) in $store.getters.spatialEntries"
       :data-entry="entry.path"
       :key="entry.path"
       :style="style"
-      :class="{resizable, draggable, dragging}">
+      :class="{resizable, draggable, dragging, aspect}">
       <ViewEntry :entry="entry"></ViewEntry>
     </div>
   </div>
@@ -20,7 +20,7 @@ header {
   position: absolute;
   top: 0; left: 0;
   width: 100%;
-  padding: 1rem;
+  padding: var(--pad);
   display: flex;
   justify-content: space-between;
   h1 {
@@ -44,6 +44,7 @@ header {
 }
 .spatial-entry {
   cursor: grab;
+  overflow: hidden;
   &.dragging {
     cursor: grabbing;
   }
@@ -66,28 +67,35 @@ export default {
     }
   },
   mounted() {
-    interact('.spatial-entry.resizable')
+    const resizable = {
+      edges: {top: true, bottom: true, left: true, right: true},
+      listeners: {
+        start: event => {
+          const entry = event.target.getAttribute('data-entry')
+          this.$store.dispatch('dragStart', entry)
+        },
+        move: event => {
+          const {left, top, width, height} = event.rect
+          this.$store.dispatch('dragMove', {resize: {left, top, width, height}})
+        },
+        end: event => {
+          this.$store.dispatch('dragEnd')
+        }
+      }
+    }
+
+    interact('.spatial-entry.resizable.aspect')
       .resizable({
-        edges: {top: true, bottom: true, left: true, right: true},
+        ...resizable,
         modifiers: [
           interact.modifiers.aspectRatio({
             ratio: 'preserve'
           })
         ],
-        listeners: {
-          start: event => {
-            const entry = event.target.getAttribute('data-entry')
-            this.$store.dispatch('dragStart', entry)
-          },
-          move: event => {
-            const {left, top, width, height} = event.rect
-            this.$store.dispatch('dragMove', {resize: {left, top, width, height}})
-          },
-          end: event => {
-            this.$store.dispatch('dragEnd')
-          }
-        }
       })
+
+    interact('.spatial-entry.resizable:not(.aspect)')
+      .resizable(resizable)
 
     interact('.spatial-entry.draggable')
       .styleCursor(false)

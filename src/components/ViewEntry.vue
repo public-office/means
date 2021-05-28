@@ -1,9 +1,9 @@
 <template>
-<div class="view-entry" :class="entry.kind" @click="onClick" @dblclick="onDblclick">
+<div class="view-entry" :class="{[entry.kind]: true, single}" @click="onClick" @dblclick="onDblclick">
   <img :draggable="false" v-if="entry.kind === 'image'" :src="entry.drivePath" @load="onLoad" />
   <video preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.drivePath" controls></video>
   <!-- <textarea class="view-entry" v-else-if="kind === 'text'" v-model="text"></textarea> -->
-  <div v-else-if="entry.kind === 'text'"><pre>{{text}}</pre></div>
+  <textarea v-else-if="entry.kind === 'text'" v-model="text"></textarea>
   <div v-else-if="entry.kind === 'directory'">
     <i class="material-icons">folder</i><br />
     {{entry.name}}
@@ -25,9 +25,29 @@
     }
   }
   &.text {
-    background: white;
-    textarea {
+    &:not(.single) {
+      border: 1px solid;
+      height: 100%;
+      textarea {
+        pointer-events: none;
+      }
+    }
+    &.single {
       width: 100%;
+      position: absolute;
+      top: 5rem;
+      left: 0;
+      bottom: 0;
+      transform: none!important;
+      border-top: 1px solid;
+    }
+    textarea {
+      display: block;
+      height: 100%;
+      width: 100%;
+      resize: none;
+      padding: var(--pad);
+      font-family: monospace;
     }
   }
   &.image {
@@ -43,13 +63,19 @@
 <script>
 export default {
   props: {
-    entry: Object
+    entry: Object,
+    single: Boolean
   },
-  state: () => ({
+  data: () => ({
     text: ''
   }),
   created() {
     this.identify()
+  },
+  async mounted() {
+    if(this.entry.kind) {
+      this.text = await this.$store.getters.getEntryText(this.entry)
+    }
   },
   methods: {
     onClick() {},

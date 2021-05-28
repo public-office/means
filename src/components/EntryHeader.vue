@@ -16,7 +16,7 @@ header {
   position: absolute;
   top: 0; left: 0;
   width: 100%;
-  padding: 1rem;
+  padding: var(--pad);
   display: flex;
   justify-content: space-between;
   z-index: 2;

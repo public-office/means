@@ -1,12 +1,12 @@
 <template>
-<div class="single">
+<div class="outer">
   <EntryHeader :entry="entry"></EntryHeader>
-  <ViewEntry :entry="entry"></ViewEntry>
+  <ViewEntry :entry="entry" single></ViewEntry>
 </div>
 </template>
 
 <style scoped lang="scss">
-.single {
+.outer {
   position: absolute;
   top: 0; left: 0;
   background: rgba(255, 255, 255, 0.9);
