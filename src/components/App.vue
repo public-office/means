@@ -1,29 +1,11 @@
 <template>
 <div>
-  <!-- <ViewEntry
-    v-if="isFile"
-    :entry="entry"
-    :drive="drive"
-    @identify="identifyEntry(entry)">
-  </ViewEntry> -->
-
   <SingleEntry
     v-if="single && single.isFile"
     :entry="single"></SingleEntry>
 
-  <SpatialEntries></SpatialEntries>
-
-  <!-- <ListEntries
-    :parent="parent"
-    :base="base"
-    :entries="entries">
-  </ListEntries> -->
-
-  <!-- <div class="menu">
-    <button @click="createFolder">New folder</button>
-    <button @click="$refs.upload.click()">Upload file(s)</button>
-    <input type="file" multiple hidden ref="upload" @input="inputFiles" />
-  </div> -->
+  <SpatialEntries
+    :single="single"></SpatialEntries>
 </div>
 </template>
 
