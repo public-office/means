@@ -1,9 +1,8 @@
 import {resolve} from 'path'
-// import liveReload from 'vite-plugin-live-reload'
 import {createVuePlugin} from 'vite-plugin-vue2'
 
 export default ({command, mode}) => {
-  const dir = mode === 'development' ? 'dev' : 'dist'
+  const dir = mode === 'development' ? 'dev' : 'dist/.ui'
 
   return {
     plugins: [

@@ -6,8 +6,8 @@ console.log(`
 <html>
 <head>
   <title>Means</title>
-  ${entry.css.map(css => `<link rel="stylesheet" href="/${css}" />`).join('\n')}
-  <script type="module" src="/${entry.file}"></script>
+  ${entry.css.map(css => `<link rel="stylesheet" href="/.ui/${css}" />`).join('\n')}
+  <script type="module" src="/.ui/${entry.file}"></script>
 </head>
 <body>
   <div id="app"></div>
