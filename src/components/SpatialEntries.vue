@@ -1,6 +1,8 @@
 <template>
 <div class="spatial-entries" @dragover.prevent @drop.prevent="onDrop">
-  <EntryHeader v-if="!single && $store.getters.baseEntry" :entry="$store.getters.baseEntry"></EntryHeader>
+  <EntryHeader
+    v-if="!single && $store.getters.baseEntry"
+    :entry="$store.getters.baseEntry"></EntryHeader>
   <div class="container">
     <div
       class="spatial-entry"

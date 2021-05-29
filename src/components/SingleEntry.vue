@@ -1,5 +1,5 @@
 <template>
-<div class="outer">
+<div class="outer" @click.prevent="onClickBg">
   <EntryHeader :entry="entry"></EntryHeader>
   <ViewEntry :entry="entry" single></ViewEntry>
 </div>
@@ -36,6 +36,11 @@ export default {
   },
   props: {
     entry: Object
+  },
+  methods: {
+    onClickBg() {
+      if(this.$route.path !== '/') this.$router.push(this.entry.parent)
+    }
   }
 }
 </script>

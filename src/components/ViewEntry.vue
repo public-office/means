@@ -1,5 +1,5 @@
 <template>
-<div class="view-entry" :class="{[entry.kind]: true, single}" @click="onClick" @dblclick="onDblclick">
+<div class="view-entry" :class="{[entry.kind]: true, single}" @click.stop="onClick" @dblclick="onDblclick">
   <a href="#" class="pill save" v-if="changed" @click.prevent="save">save changes</a>
 
   <img :draggable="false" v-if="entry.kind === 'image'" :src="entry.drivePath" @load="onLoad" />

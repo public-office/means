@@ -1,5 +1,5 @@
 <template>
-<header>
+<header @click.stop>
   <div class="main">
     <router-link v-if="$route.path !== '/'" class="back pill" :to="entry.parent">
       <i class="material-icons">arrow_back</i>

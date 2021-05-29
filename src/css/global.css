@@ -28,11 +28,8 @@ body {
   background: white;
 }
 
-a {
-  color: blue;
-}
 a:hover {
-  color: red;
+  color: blue;
 }
 
 pre {
