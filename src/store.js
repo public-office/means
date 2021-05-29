@@ -372,6 +372,9 @@ export default {
     async updateText({dispatch}, {entry, text}) {
       await drive.writeFile(entry.drivePath, text, {encoding: 'utf8'})
       await dispatch('fetchEntries')
+    },
+    fork() {
+      beaker.hyperdrive.forkDrive(drive.url, {detached: true})
     }
   },
   mutations: {

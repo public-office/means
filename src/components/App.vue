@@ -6,15 +6,20 @@
 
   <SpatialEntries
     :single="single"></SpatialEntries>
+
+  <footer>
+    <a class="pill" href="#" @click.prevent="forkDrive"><i class="material-icons">content_copy</i> fork</a>
+  </footer>
 </div>
 </template>
 
 <style scoped>
-.menu {
-  position:fixed;
-  top: 0;
-  left: 0;
+footer {
+  position: absolute;
+  bottom: 0;
+  right: 0;
   z-index: 2;
+  margin: var(--pad);
 }
 </style>
 
@@ -46,44 +51,11 @@ export default {
     single() {
       return this.$store.getters.single(this.$route.path)
     }
+  },
+  methods: {
+    forkDrive() {
+      this.$store.dispatch('fork')
+    }
   }
 }
-
-//   methods: {
-//     async createFolder() {
-//       const name = prompt('Folder name')
-//       if(name) {
-//         const path = Path.join(this.driveBase, name)
-//         await this.drive.mkdir(path)
-//         this.fetch()
-//       }
-//     },
-//     async onDrop(event) {
-//     },
-//     async inputFiles(event) {
-//       this.uploadFiles(Array.from(event.target.files))
-//       event.target.value = ''
-//     },
-//     async uploadFiles(files) {
-//     },
-//     async identifyEntry(entry) {
-//       let type
-
-//       if(entry.stat.isDirectory()) type = 'directory'
-
-//       const ext = Path.extname(this.entry.name)
-
-//       if(ext) type = mime.getType(ext)
-
-//       if(!type) {
-//         const buf = await this.drive.readFile(this.entry.drivePath, 'binary')
-//         const found = await FileType.fromBuffer(buf)
-//         type = found && found.mime
-//       }
-
-//       if(type) {
-//         this.updateMetadata(entry, {type})
-//       }
-//     },
-//   }
 </script>
