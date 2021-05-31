@@ -63,7 +63,9 @@ export default {
     drag: null,
     interacting: false,
     selection: new Set(),
-    hover: null
+    hover: null,
+    loading: false,
+    loadingTime: 0
   },
   getters: {
     name(state) {
@@ -229,8 +231,6 @@ export default {
       commit('update', {baseStat})
     },
     async fetchEntries({state, commit, getters}) {
-      commit('update', {entries: []})
-
       const stat = await drive.stat(state.path)
       commit('update', {stat})
 
@@ -252,7 +252,8 @@ export default {
         return getters.createEntry(path, stat)
       })
 
-      commit('update', {entries})
+      clearInterval(window.loadingInterval)
+      commit('update', {entries, loading: false})
     },
     async updateMetadata({commit}, {entry, metadata}) {
       commit('updateLocalEntryMetadata', {entry, metadata})
@@ -437,6 +438,10 @@ export default {
       }
     },
     updatePath(state, path) {
+      window.loadingInterval = setInterval(function() {
+        state.loading++
+      }, 1000)
+      state.loading = true
       state.path = decodeURIComponent(path)
     },
     updateLocalEntryMetadata(state, {entry, metadata}) {

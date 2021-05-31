@@ -52,6 +52,9 @@ header {
   height: 100%;
   overflow: hidden;
 }
+.spatial-entries {
+  z-index: 1;
+}
 .spatial-entry {
   cursor: grab;
   &.selected {
