@@ -111,6 +111,8 @@
         max-width: calc(100vw - var(--pad) * 2);
         max-height: calc(100vh - 14rem);
         object-fit: contain;
+        width: 100%;
+        height: 100%;
       }
     }
   }
