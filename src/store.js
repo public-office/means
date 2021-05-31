@@ -139,9 +139,11 @@ export default {
         const parentLink = parent.endsWith('/')  ? parent : parent+'/'
 
         const ext = Path.extname(path)
+        
+        const visual = !['pdf', 'directory'].includes(kind)
 
         return {
-          path, displayPath, base, parent, parentLink, kind, name, stat, isDirectory, isFile, form, type, icon, link, ext
+          path, displayPath, base, parent, parentLink, kind, name, stat, isDirectory, isFile, form, type, icon, link, ext, visual
         }
       }
     },

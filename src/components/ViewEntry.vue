@@ -1,11 +1,15 @@
 <template>
-<div class="view-entry" :class="{[entry.kind]: true, single}" @click.stop="onClick" @dblclick="onDblclick">
-  <a href="#" class="pill save" v-if="changed" @click.prevent="save">save changes</a>
+<div class="view-entry" :class="{[entry.kind]: true, single, loading, visual: entry.visual}" @click.stop="onClick" @dblclick="onDblclick">
+  <div v-if="loading" class="loading-spinner">
+    <Spinner></Spinner>
+  </div>
 
-  <img :draggable="false" v-if="entry.kind === 'image'" :src="entry.path" @load="onLoad" />
-  <video preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" controls></video>
-  <textarea v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined"></textarea>
-  <iframe v-else-if="single && entry.kind === 'pdf'" :src="src" />
+  <a href="#" class="pill save" v-if="single && changed" @click.prevent="save">save changes</a>
+
+  <img class="yield" :draggable="false" v-if="entry.kind === 'image'" :src="entry.path" @load="onLoad" />
+  <video class="yield" preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" controls></video>
+  <textarea class="yield" v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined"></textarea>
+  <iframe class="yield" v-else-if="single && entry.kind === 'pdf'" :src="src" />
   <div v-else>
     <i class="material-icons">{{entry.icon}}</i><br />
     {{entry.name}}
@@ -22,8 +26,26 @@
     top: 0; right: 0;
     margin: var(--pad);
   }
+  .loading-spinner {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: white;
+    z-index: 1;
+    .spinner {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2rem;
+    }
+  }
+  &.loading {
+    .yield {
+      opacity: 0;
+    }
+  }
   &:not(.single) {
-    &.directory, &.file, &.pdf {
+    &:not(.visual) {
       text-align: center;
       padding: 0.2rem 0.5rem 0.5rem;
       i {
@@ -44,8 +66,13 @@
       height: 100%;
     }
   }
-  &.text {
+  &.text, &.loading {
     box-shadow: 0 0.2rem 0.75rem rgba(0, 0, 0, 0.3);
+  }
+  &.loading {
+    background: white;
+  }
+  &.text {
     &:not(.single) {
       height: 100%;
       background: white;
@@ -71,11 +98,13 @@
     }
   }
   &.image {
+    img {
+      display: block;
+    }
     &:not(.single) {
       img {
         width: 100%;
         height: auto;
-        display: block;
       }
     }
     &.single {
@@ -90,7 +119,12 @@
 </style>
 
 <script>
+import Spinner from './Spinner.vue'
+
 export default {
+  components: {
+    Spinner
+  },
   props: {
     entry: Object,
     single: Boolean
@@ -98,7 +132,8 @@ export default {
   data: () => ({
     text: '',
     src: '',
-    changed: false
+    changed: false,
+    loading: false
   }),
   created() {
     this.identify()
@@ -107,6 +142,9 @@ export default {
     entry() {
       this.getContent()
     }
+  },
+  created() {
+    if(this.entry.visual) this.loading = true
   },
   async mounted() {
     this.getContent()
@@ -117,6 +155,8 @@ export default {
       if(this.single && this.entry.kind === 'pdf') {
         this.src = await this.$store.getters.getEntryContent(this.entry)
       }
+
+      this.loading = false
     },
     onClick() {
       if(!this.$store.state.interacting) this.$emit('click')
@@ -128,6 +168,8 @@ export default {
       if(!this.entry.type) this.$store.dispatch('identifyEntry', this.entry)
     },
     onLoad(event) {
+      this.loading = false
+      
       const {entry} = this
       const {metadata} = entry.stat
 

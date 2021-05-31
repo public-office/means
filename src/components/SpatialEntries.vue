@@ -78,6 +78,7 @@ header {
     height: 0.8rem;
     border: 1px solid;
     background: white;
+    z-index: 2;
     &.top.left {top: 0; left: 0; transform: translate(-50%, -50%)}
     &.top.right {top: 0; right: 0; transform: translate(50%, -50%)}
     &.bottom.right {bottom: 0; right: 0; transform: translate(50%, 50%)}
