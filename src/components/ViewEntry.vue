@@ -64,7 +64,7 @@
       height: 100%;
     }
   }
-  &.text, &.loading.visual {
+  &.loading.visual {
     box-shadow: 0 0.2rem 0.75rem rgba(0, 0, 0, 0.3);
   }
   &.loading {
