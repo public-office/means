@@ -106,6 +106,7 @@ export default {
 
         if(type) {
           if(type === 'directory') kind = 'directory'
+          if(type === 'application/pdf') kind = 'pdf'
           if(type.startsWith('image/')) kind = 'image'
           if(type.startsWith('video/')) kind = 'video'
           if(type.startsWith('text/')) kind = 'text'
@@ -114,6 +115,7 @@ export default {
         let icon = (kind === 'directory') ? 'folder' : 'insert_drive_file'
         if(kind === 'image') icon = 'image'
         if(kind === 'video') icon = 'movie'
+        if(kind === 'pdf') icon = 'picture_as_pdf'
 
         const base = isFile ? Path.dirname(path) : path
 
@@ -170,6 +172,14 @@ export default {
     getEntryText(state, getters) {
       return async entry => {
         if(entry.kind === 'text') return await drive.readFile(entry.path, {encoding: 'utf8'})
+      }
+    },
+    getEntryContent(state, getters) {
+      return async entry => {
+        const buf = await drive.readFile(entry.path, {encoding: 'binary'})
+        const blob = new Blob([buf], {type: entry.type})
+        const url = URL.createObjectURL(blob)
+        return url
       }
     },
     single(state, getters) {

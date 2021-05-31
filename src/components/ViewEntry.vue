@@ -5,12 +5,9 @@
   <img :draggable="false" v-if="entry.kind === 'image'" :src="entry.path" @load="onLoad" />
   <video preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" controls></video>
   <textarea v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined"></textarea>
-  <div v-else-if="entry.kind === 'directory'">
-    <i class="material-icons">folder</i><br />
-    {{entry.name}}
-  </div>
+  <iframe v-else-if="single && entry.kind === 'pdf'" :src="src" />
   <div v-else>
-    <i class="material-icons">insert_drive_file</i><br />
+    <i class="material-icons">{{entry.icon}}</i><br />
     {{entry.name}}
   </div>
 </div>
@@ -19,15 +16,29 @@
 <style scoped lang="scss">
 .view-entry {
   display: block;
+  --top: 5rem;
   .save {
     position: absolute;
     top: 0; right: 0;
     margin: var(--pad);
   }
-  &.directory, &.file {
+  &.directory, &.file, &.pdf {
     text-align: center;
     i {
       font-size: 4.8rem;
+    }
+  }
+  &.pdf.single {
+    width: 100%;
+    position: absolute;
+    top: var(--top);
+    left: 0;
+    bottom: 0;
+    transform: none!important;
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
     }
   }
   &.text {
@@ -42,7 +53,7 @@
     &.single {
       width: 100%;
       position: absolute;
-      top: 5rem;
+      top: var(--top);
       left: 0;
       bottom: 0;
       transform: none!important;
@@ -83,6 +94,7 @@ export default {
   },
   data: () => ({
     text: '',
+    src: '',
     changed: false
   }),
   created() {
@@ -90,16 +102,17 @@ export default {
   },
   watch: {
     entry() {
-      this.getText()
+      this.getContent()
     }
   },
   async mounted() {
-    this.getText()
+    this.getContent()
   },
   methods: {
-    async getText() {
-      if(this.entry.kind === 'text') {
-        this.text = await this.$store.getters.getEntryText(this.entry)
+    async getContent() {
+      if(this.entry.kind === 'text') this.text = await this.$store.getters.getEntryText(this.entry)
+      if(this.single && this.entry.kind === 'pdf') {
+        this.src = await this.$store.getters.getEntryContent(this.entry)
       }
     },
     onClick() {},
