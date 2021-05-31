@@ -57,7 +57,7 @@ footer {
   align-items: center;
   > span {
     display: inline-block;
-    margin-right: 2rem;
+    margin-right: 1.5rem;
   }
 }
 </style>
