@@ -229,6 +229,8 @@ export default {
       commit('update', {baseStat})
     },
     async fetchEntries({state, commit, getters}) {
+      commit('update', {entries: []})
+
       const stat = await drive.stat(state.path)
       commit('update', {stat})
 
