@@ -44,13 +44,11 @@
       opacity: 0;
     }
   }
-  &:not(.single) {
-    &:not(.visual) {
-      text-align: center;
-      padding: 0.2rem 0.5rem 0.5rem;
-      i {
-        font-size: 4.8rem;
-      }
+  &:not(.single):not(.visual) {
+    text-align: center;
+    padding: 0.2rem 0.5rem 0.5rem;
+    i {
+      font-size: 4.8rem;
     }
   }
   &.pdf.single {
@@ -66,7 +64,7 @@
       height: 100%;
     }
   }
-  &.text, &.loading {
+  &.text, &.loading.visual {
     box-shadow: 0 0.2rem 0.75rem rgba(0, 0, 0, 0.3);
   }
   &.loading {
