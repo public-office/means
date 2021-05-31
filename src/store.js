@@ -26,6 +26,8 @@ function getCoords({top, left}) {
   return {x, y}
 }
 
+window.objectCache = {}
+
 function getPosition(entry, drag) {
   let {x, y, z, width, height} = entry.stat.metadata
 
@@ -176,9 +178,15 @@ export default {
     },
     getEntryContent(state, getters) {
       return async entry => {
+        const cached = window.objectCache[entry.path]
+        if(cached) return cached
+
         const buf = await drive.readFile(entry.path, {encoding: 'binary'})
         const blob = new Blob([buf], {type: entry.type})
         const url = URL.createObjectURL(blob)
+
+        window.objectCache[entry.path] = url
+
         return url
       }
     },
