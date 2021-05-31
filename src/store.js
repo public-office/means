@@ -116,7 +116,7 @@ export default {
 
         const parent = isDirectory ? Path.dirname(base) : base
 
-        const segs = path.split('/')
+        const segs = path.split('/').filter(p => p)
         const name = segs[segs.length-1]
 
         const displayPath = path === '/' ? 'Home' : path.replace(/^\//, '').replace(/\/$/, '')
