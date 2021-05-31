@@ -94,6 +94,7 @@
       resize: none;
       padding: var(--pad);
       font-family: 'TW', monospace;
+      color: black;
     }
   }
   &.image {

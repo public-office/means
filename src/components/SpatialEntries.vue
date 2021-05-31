@@ -58,6 +58,7 @@ header {
 .spatial-entry {
   cursor: grab;
   &.selected {
+    color: blue;
     outline: 1px solid blue!important;
     .handle {
       border-color: blue;

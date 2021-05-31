@@ -80,7 +80,8 @@ export default {
     selection: new Set(),
     hover: null,
     loading: false,
-    loadingTime: 0
+    loadingTime: 0,
+    showSettings: false
   },
   getters: {
     offset(state, getters) {
@@ -97,6 +98,9 @@ export default {
     },
     name(state) {
       return Path.basename(state.path)
+    },
+    title(state) {
+      return (state.info && state.info.title) || 'Means'
     },
     writable(state) {
       return state.info && state.info.writable
@@ -155,6 +159,7 @@ export default {
         }
 
         let icon = (kind === 'directory') ? 'folder' : 'insert_drive_file'
+        if(path === '/') icon = 'home'
         if(kind === 'image') icon = 'image'
         if(kind === 'video') icon = 'movie'
         if(kind === 'pdf') icon = 'picture_as_pdf'
@@ -166,7 +171,7 @@ export default {
         const segs = path.split('/').filter(p => p)
         const name = segs[segs.length-1]
 
-        const displayPath = path === '/' ? 'Home' : path.replace(/^\//, '').replace(/\/$/, '')
+        const displayPath = path === '/' ? getters.title : path.replace(/^\//, '').replace(/\/$/, '')
 
         const form = isDirectory ? 'folder' : 'file'
 
@@ -251,10 +256,13 @@ export default {
       await dispatch('fetchBase')
       dispatch('fetchEntries')
     },
-    async fetchBase({state, commit, getters}) {
+    async getInfo({commit}) {
       const info = await drive.getInfo()
+      document.title = info.title
       commit('update', {info})
-
+    },
+    async fetchBase({state, commit, dispatch, getters}) {
+      await dispatch('getInfo')
       let baseStat
 
       const stat = await drive.stat(state.path)
@@ -509,6 +517,10 @@ export default {
       } else {
         commit('update', {hover: null})
       }
+    },
+    async updateTitle({state, dispatch, getters}, title) {
+      await drive.configure({title})
+      await dispatch('getInfo')
     }
   },
   mutations: {

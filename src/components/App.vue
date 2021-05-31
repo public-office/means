@@ -1,5 +1,7 @@
 <template>
 <div @wheel.prevent>
+  <settings v-if="$store.state.showSettings"></settings>
+
   <div class="loading" v-if="$store.state.loading && $store.state.loadingTime > 0">
     <div class="message">
       <Spinner></Spinner>
@@ -17,6 +19,9 @@
   <footer>
     <span>{{peersText}}</span>
     <a class="pill" href="#" @click.prevent="forkDrive"><i class="material-icons">content_copy</i> fork</a>
+    <a href="#" class="pill" @click.stop="showSettings">
+      <i class="material-icons">settings</i> settings
+    </a>
   </footer>
 </div>
 </template>
@@ -57,7 +62,9 @@ footer {
   align-items: center;
   > span {
     display: inline-block;
-    margin-right: 1.5rem;
+  }
+  > * {
+    margin-left: 1rem;
   }
 }
 </style>
@@ -68,6 +75,7 @@ import SpatialEntries from './SpatialEntries.vue'
 import ViewEntry from './ViewEntry.vue'
 import SingleEntry from './SingleEntry.vue'
 import Spinner from './Spinner.vue'
+import Settings from './Settings.vue'
 
 export default {
   components: {
@@ -75,7 +83,8 @@ export default {
     SpatialEntries,
     ViewEntry,
     SingleEntry,
-    Spinner
+    Spinner,
+    Settings
   },
   created() {
     this.$store.dispatch('init', this.$route.path)
@@ -97,6 +106,9 @@ export default {
   methods: {
     forkDrive() {
       this.$store.dispatch('fork')
+    },
+    showSettings() {
+      this.$store.commit('update', {showSettings: true})
     }
   }
 }
