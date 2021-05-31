@@ -16,17 +16,19 @@
 <style scoped lang="scss">
 .view-entry {
   display: block;
-  --top: 5rem;
+  --top: 4.8rem;
   .save {
     position: absolute;
     top: 0; right: 0;
     margin: var(--pad);
   }
-  &.directory, &.file, &.pdf {
-    text-align: center;
-    padding: 0.2rem 0.5rem 0.5rem;
-    i {
-      font-size: 4.8rem;
+  &:not(.single) {
+    &.directory, &.file, &.pdf {
+      text-align: center;
+      padding: 0.2rem 0.5rem 0.5rem;
+      i {
+        font-size: 4.8rem;
+      }
     }
   }
   &.pdf.single {
