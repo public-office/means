@@ -85,6 +85,7 @@
       left: 0;
       bottom: 0;
       transform: none!important;
+      border-top: 1px solid;
     }
     textarea {
       display: block;
