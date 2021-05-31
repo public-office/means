@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "cp src/dev.html dev/index.html && vite",
-    "build": "vite build && cat dist/.ui/manifest.json | node src/index.html.js > dist/.ui/ui.html"
+    "build": "vite build && cat dist/.ui/manifest.json | node src/index.html.js > dist/.ui/ui.html",
+    "deploy": "dotenv -- bash -c 'hyp drive sync -y ./dist $DEPLOY_DRIVE'"
   },
   "devDependencies": {
     "sass": "^1.32.12",
@@ -15,6 +16,9 @@
     "vite-plugin-vue2": "^1.4.4"
   },
   "dependencies": {
+    "@hyperspace/cli": "^1.5.1",
+    "dotenv": "^10.0.0",
+    "dotenv-cli": "^4.0.0",
     "file-type": "./lib/file-type",
     "interactjs": "^1.10.11",
     "lodash-es": "^4.17.21",
