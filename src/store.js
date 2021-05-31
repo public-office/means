@@ -126,8 +126,10 @@ export default {
         const link = isDirectory ? (path.endsWith('/') ? path : path+'/') : path
         const parentLink = parent.endsWith('/')  ? parent : parent+'/'
 
+        const ext = Path.extname(path)
+
         return {
-          path, displayPath, base, parent, parentLink, kind, name, stat, isDirectory, isFile, form, type, icon, link
+          path, displayPath, base, parent, parentLink, kind, name, stat, isDirectory, isFile, form, type, icon, link, ext
         }
       }
     },
@@ -233,6 +235,20 @@ export default {
         await drive.unlink(entry.path)
       }
       dispatch('fetchEntries')
+    },
+    async renameEntry({dispatch}, {entry, name}) {
+      const destExt = Path.extname(name)
+      if(entry.ext !== destExt) {
+        name = Path.parse(name).name+entry.ext
+      }
+
+      let dest = Path.join(entry.parent, name)
+
+      if(entry.path !== dest) await drive.rename(entry.path, dest)
+
+      if(entry.isDirectory) dest = dest+'/'
+
+      return dest
     },
     async identifyEntry({dispatch}, entry) {
       let type

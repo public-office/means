@@ -10,6 +10,7 @@
     <a class="pill" v-if="entry.isDirectory" @click.stop="uploadFile" href="#"><i class="material-icons">insert_drive_file</i> upload file</a>
     <a class="pill" v-if="entry.isDirectory" @click.stop="createFolder" href="#"><i class="material-icons">folder</i> add folder</a>
     <a class="pill" v-if="entry.isDirectory" @click.stop="createText" href="#"><i class="material-icons">description</i> add text</a>
+    <a class="pill" v-if="entry.path !== '/'" @click.stop="renameEntry" href="#"><i class="material-icons">edit</i> rename</a>
     <a class="pill" v-if="entry.path !== '/'" @click.stop="deleteEntry" href="#"><i class="material-icons">delete</i> delete {{entry.form}}</a>
   </nav>
 </header>
@@ -67,6 +68,13 @@ export default {
       if(confirm(`Delete ${this.entry.name}?`)) {
         this.$router.replace(this.entry.parent)
         this.$store.dispatch('deleteEntry', this.entry)
+      }
+    },
+    async renameEntry() {
+      const name = prompt(`Rename ${this.entry.name} to`)
+      if(name) {
+        const dest = await this.$store.dispatch('renameEntry', {entry: this.entry, name})
+        this.$router.replace(dest)
       }
     },
     async createFolder() {
