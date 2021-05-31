@@ -1,7 +1,7 @@
 <template>
 <header @click.stop>
   <div class="main">
-    <router-link v-if="$route.path !== '/'" class="back pill" :to="entry.parent">
+    <router-link v-if="$route.path !== '/'" class="back pill" :to="entry.parentLink">
       <i class="material-icons">arrow_back</i>
     </router-link>
     <h1><i class="material-icons">{{entry.icon}}</i> {{entry.displayPath}}</h1>
@@ -77,7 +77,7 @@ export default {
     },
     async createText() {
       const entry = await this.$store.dispatch('createText', {base: this.entry.base})
-      this.$router.push(entry.path)
+      this.$router.push(entry.link)
     },
     async uploadFile() {
       const $input = document.createElement('input')

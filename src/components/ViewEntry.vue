@@ -104,7 +104,7 @@ export default {
     },
     onClick() {},
     onDblclick() {
-      if(this.$route.path !== this.entry.path) this.$router.push(this.entry.path)
+      if(this.$route.path !== this.entry.link) this.$router.push(this.entry.link)
     },
     identify() {
       if(!this.entry.type) this.$store.dispatch('identifyEntry', this.entry)

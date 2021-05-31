@@ -119,23 +119,15 @@ export default {
         const segs = path.split('/')
         const name = segs[segs.length-1]
 
-        const displayPath = path === '/' ? 'Home' : path.replace(/^\//, '')
+        const displayPath = path === '/' ? 'Home' : path.replace(/^\//, '').replace(/\/$/, '')
 
         const form = isDirectory ? 'folder' : 'file'
 
+        const link = isDirectory ? (path.endsWith('/') ? path : path+'/') : path
+        const parentLink = parent.endsWith('/')  ? parent : parent+'/'
+
         return {
-          path,
-          displayPath,
-          base,
-          parent,
-          kind,
-          name,
-          stat,
-          isDirectory,
-          isFile,
-          form,
-          type,
-          icon
+          path, displayPath, base, parent, parentLink, kind, name, stat, isDirectory, isFile, form, type, icon, link
         }
       }
     },
@@ -168,7 +160,7 @@ export default {
         const aspect = entry.kind !== 'text'
 
         return {entry, style, resizable, draggable, dragging, aspect}
-      }).map(entry => {console.warn(entry); return entry})
+      })
     },
     getEntryText(state, getters) {
       return async entry => {
