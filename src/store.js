@@ -60,7 +60,10 @@ export default {
     stat: null,
     baseStat: null,
     entries: [],
-    drag: null
+    drag: null,
+    interacting: false,
+    selection: new Set(),
+    hover: null
   },
   getters: {
     name(state) {
@@ -168,7 +171,10 @@ export default {
         const draggable = true
         const aspect = entry.kind !== 'text'
 
-        return {entry, style, resizable, draggable, dragging, aspect}
+        const selected = state.selection.has(entry.path)
+        const hover = state.hover === entry.path
+
+        return {entry, style, resizable, draggable, dragging, aspect, selected, hover}
       })
     },
     getEntryText(state, getters) {
@@ -202,6 +208,7 @@ export default {
     },
     async navigate({commit, dispatch}, path) {
       commit('updatePath', path)
+      dispatch('select', {entry: null})
       await dispatch('fetchBase')
       dispatch('fetchEntries')
     },
@@ -280,13 +287,6 @@ export default {
 
       if(ext) type = mime.getType(ext)
 
-      // Detect content type from data
-      // if(!type) {
-      //   const buf = await drive.readFile(this.entry.path, 'binary')
-      //   const found = await FileType.fromBuffer(buf)
-      //   type = found && found.mime
-      // }
-
       if(type) {
         const metadata = {type}
         dispatch('updateMetadata', {entry, metadata})
@@ -294,7 +294,7 @@ export default {
     },
     dragStart({commit}, entry) {
       const drag = {entry, dx: 0, dy: 0}
-      commit('update', {drag})
+      commit('update', {drag, interacting: true})
     },
     dragMove({state, commit}, {dx, dy, resize}) {
       const drag = {
@@ -318,6 +318,10 @@ export default {
       } else {
         commit('update', {drag: null})
       }
+
+      setTimeout(function() {
+        commit('update', {interacting: false})
+      }, 1)
     },
     async drop({state, getters, dispatch}, event) {
       const files = event.dataTransfer.files
@@ -399,6 +403,27 @@ export default {
     },
     fork() {
       beaker.hyperdrive.forkDrive(drive.url, {detached: true})
+    },
+    select({commit, state}, {entry, add}) {
+      if(entry) {
+        if(add) {
+          state.selection.add(entry.path)
+          state.selection = new Set(state.selection)
+        } else {
+          state.selection = new Set([entry.path])
+        }
+      } else {
+        state.selection = new Set()
+      }
+    },
+    hover({commit, state}, entry) {
+      if(state.drag) return
+
+      if(entry) {
+        commit('update', {hover: entry.path})
+      } else {
+        commit('update', {hover: null})
+      }
     }
   },
   mutations: {

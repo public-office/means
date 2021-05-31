@@ -24,6 +24,7 @@
   }
   &.directory, &.file, &.pdf {
     text-align: center;
+    padding: 0.2rem 0.5rem 0.5rem;
     i {
       font-size: 4.8rem;
     }
@@ -115,7 +116,9 @@ export default {
         this.src = await this.$store.getters.getEntryContent(this.entry)
       }
     },
-    onClick() {},
+    onClick() {
+      if(!this.$store.state.interacting) this.$emit('click')
+    },
     onDblclick() {
       if(this.$route.path !== this.entry.link) this.$router.push(this.entry.link)
     },

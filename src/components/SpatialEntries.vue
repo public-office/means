@@ -1,17 +1,25 @@
 <template>
-<div class="spatial-entries" @dragover.prevent @drop.prevent="onDrop">
+<div class="spatial-entries" @dragover.prevent @drop.prevent="onDrop" @click="onClickBg">
   <EntryHeader
     v-if="!single && $store.getters.baseEntry"
     :entry="$store.getters.baseEntry"></EntryHeader>
   <div class="container">
     <div
       class="spatial-entry"
-      v-for="({entry, style, resizable, draggable, dragging, aspect}) in $store.getters.spatialEntries"
+      v-for="({entry, style, resizable, draggable, dragging, aspect, selected, hover}) in $store.getters.spatialEntries"
       :data-entry="entry.path"
       :key="entry.path"
       :style="style"
-      :class="{resizable, draggable, dragging, aspect}">
-      <ViewEntry :entry="entry"></ViewEntry>
+      :class="{resizable, draggable, dragging, aspect, selected, hover}"
+      @mouseenter="onMouseEnter(entry)"
+      @mouseleave="onMouseLeave(entry)">
+      <div class="handles" v-if="resizable">
+        <div class="handle top right"></div>
+        <div class="handle bottom right"></div>
+        <div class="handle bottom left"></div>
+        <div class="handle top left"></div>
+      </div>
+      <ViewEntry :entry="entry" @click="onClick(entry)"></ViewEntry>
     </div>
   </div>
 </div>
@@ -46,8 +54,31 @@ header {
 }
 .spatial-entry {
   cursor: grab;
+  &.selected {
+    outline: 1px solid blue!important;
+    .handle {
+      border-color: blue;
+    }
+  }
+  &.hover {
+    outline: 1px solid;
+  }
+  &:not(.hover):not(.selected) .handle {
+    display: none;
+  }
   &.dragging {
     cursor: grabbing;
+  }
+  .handle {
+    position: absolute;
+    width: 0.8rem;
+    height: 0.8rem;
+    border: 1px solid;
+    background: white;
+    &.top.left {top: 0; left: 0; transform: translate(-50%, -50%)}
+    &.top.right {top: 0; right: 0; transform: translate(50%, -50%)}
+    &.bottom.right {bottom: 0; right: 0; transform: translate(50%, 50%)}
+    &.bottom.left {bottom: 0; left: 0; transform: translate(-50%, 50%)}
   }
 }
 </style>
@@ -122,6 +153,18 @@ export default {
   methods: {
     onDrop(event) {
       this.$store.dispatch('drop', event)
+    },
+    onClick(entry) {
+      this.$store.dispatch('select', {entry})
+    },
+    onClickBg() {
+      this.$store.dispatch('select', {entry: null})
+    },
+    onMouseEnter(entry) {
+      this.$store.dispatch('hover', entry)
+    },
+    onMouseLeave(entry) {
+      this.$store.dispatch('hover', null)
     }
   }
 }
