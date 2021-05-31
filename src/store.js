@@ -4,7 +4,7 @@ import _update from 'lodash-es/update'
 import _cloneDeep from 'lodash-es/cloneDeep'
 import _sortBy from 'lodash-es/sortBy'
 
-const CONTENT_BASE = '/content'
+const IGNORE_FILES = ['/.ui', '/index.json']
 const MAX_Z_INDEX = 999999
 const drive = beaker.hyperdrive.drive(document.location.origin)
 
@@ -61,9 +61,6 @@ export default {
     drag: null
   },
   getters: {
-    drivePath(state) {
-      return Path.join(CONTENT_BASE, state.path)
-    },
     name(state) {
       return Path.basename(state.path)
     },
@@ -99,7 +96,9 @@ export default {
         const isDirectory = stat.isDirectory()
         const isFile = stat.isFile()
 
-        const type = stat.metadata.type
+        const metadata = stat.metadata || {}
+
+        const type = metadata.type
         let kind = isDirectory ? 'directory' : 'file'
 
         if(type) {
@@ -114,10 +113,8 @@ export default {
         if(kind === 'video') icon = 'movie'
 
         const base = isFile ? Path.dirname(path) : path
-        const driveBase = Path.join(CONTENT_BASE, base)
 
         const parent = isDirectory ? Path.dirname(base) : base
-        const drivePath = Path.join(CONTENT_BASE, path)
 
         const segs = path.split('/')
         const name = segs[segs.length-1]
@@ -129,9 +126,7 @@ export default {
         return {
           path,
           displayPath,
-          drivePath,
           base,
-          driveBase,
           parent,
           kind,
           name,
@@ -173,11 +168,11 @@ export default {
         const aspect = entry.kind !== 'text'
 
         return {entry, style, resizable, draggable, dragging, aspect}
-      })
+      }).map(entry => {console.warn(entry); return entry})
     },
     getEntryText(state, getters) {
       return async entry => {
-        if(entry.kind === 'text') return await drive.readFile(entry.drivePath, {encoding: 'utf8'})
+        if(entry.kind === 'text') return await drive.readFile(entry.path, {encoding: 'utf8'})
       }
     },
     single(state, getters) {
@@ -186,9 +181,6 @@ export default {
   },
   actions: {
     async init({commit, dispatch}, path) {
-      const results = await drive.query({path: CONTENT_BASE})
-      if(!results.length) await drive.mkdir(CONTENT_BASE)
-
       commit('updatePath', path)
       await dispatch('fetchBase')
       dispatch('fetchEntries')
@@ -204,26 +196,30 @@ export default {
  
       let baseStat
 
-      const stat = await drive.stat(getters.drivePath)
+      const stat = await drive.stat(state.path)
       if(stat.isDirectory()) {
         baseStat = stat
       } else {
         const base = Path.dirname(state.path)
-        const driveBase = Path.join(CONTENT_BASE, base)
-        baseStat = await drive.stat(driveBase)
+        baseStat = await drive.stat(base)
       }
 
       commit('update', {baseStat})
     },
     async fetchEntries({state, commit, getters}) {
-      const stat = await drive.stat(getters.drivePath)
+      const stat = await drive.stat(state.path)
       commit('update', {stat})
 
-      let entries = await drive.readdir(getters.baseEntry.driveBase)
+      let entries = await drive.readdir(getters.baseEntry.base)
+
+      entries = entries.filter(entry => {
+        const path = Path.join(state.path, entry)
+        return !IGNORE_FILES.includes(path)
+      })
 
       const stats = await Promise.all(entries.map(async entry => {
-        const drivePath = Path.join(getters.baseEntry.driveBase, entry)
-        return await drive.stat(drivePath)
+        const path = Path.join(getters.baseEntry.base, entry)
+        return await drive.stat(path)
       }))
 
       entries = entries.map((name, i) => {
@@ -236,13 +232,13 @@ export default {
     },
     async updateMetadata({commit}, {entry, metadata}) {
       commit('updateLocalEntryMetadata', {entry, metadata})
-      await drive.updateMetadata(entry.drivePath, metadata)
+      await drive.updateMetadata(entry.path, metadata)
     },
     async deleteEntry({dispatch}, entry) {
       if(entry.isDirectory) {
-        await drive.rmdir(entry.drivePath, {recursive: true})
+        await drive.rmdir(entry.path, {recursive: true})
       } else {
-        await drive.unlink(entry.drivePath)
+        await drive.unlink(entry.path)
       }
       dispatch('fetchEntries')
     },
@@ -257,7 +253,7 @@ export default {
 
       // Detect content type from data
       // if(!type) {
-      //   const buf = await drive.readFile(this.entry.drivePath, 'binary')
+      //   const buf = await drive.readFile(this.entry.path, 'binary')
       //   const found = await FileType.fromBuffer(buf)
       //   type = found && found.mime
       // }
@@ -313,7 +309,7 @@ export default {
         const pevent = await readFile(file, 'buffer')
         const buffer = pevent.target.result
         const metadata = {type: file.type, x, y, z}
-        const path = Path.join(getters.baseEntry.drivePath, file.name)
+        const path = Path.join(getters.baseEntry.path, file.name)
         await drive.writeFile(path, buffer, {metadata})
       }
 
@@ -337,10 +333,10 @@ export default {
       const path = Path.join(base, name)
       await drive.mkdir(path)
       const z = state.entries.length
-      await dispatch('updateMetadata', {entry: {drivePath: path}, metadata: {z}})
+      await dispatch('updateMetadata', {entry: {path}, metadata: {z}})
       await dispatch('fetchEntries')
     },
-    async createText({dispatch, state, getters}, {base, driveBase}) {
+    async createText({dispatch, state, getters}, {base}) {
       const ext = 'txt'
       let name = 'untitled'
 
@@ -359,10 +355,9 @@ export default {
       if(n) name = `${name} ${n}`
 
       const filename = [name, ext].join('.')
-      const drivePath = Path.join(driveBase, filename)
       const path = Path.join(base, filename)
 
-      await drive.writeFile(drivePath, '', {encoding: 'utf8', metadata})
+      await drive.writeFile(path, '', {encoding: 'utf8', metadata})
       await dispatch('fetchEntries')
 
       const entry = getters.findEntry(path)
@@ -370,7 +365,7 @@ export default {
       return entry
     },
     async updateText({dispatch}, {entry, text}) {
-      await drive.writeFile(entry.drivePath, text, {encoding: 'utf8'})
+      await drive.writeFile(entry.path, text, {encoding: 'utf8'})
       await dispatch('fetchEntries')
     },
     fork() {

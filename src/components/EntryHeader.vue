@@ -72,11 +72,11 @@ export default {
     async createFolder() {
       const name = prompt('Enter folder name')
       if(name) {
-        this.$store.dispatch('createDirectory', {base: this.entry.driveBase, name})
+        this.$store.dispatch('createDirectory', {base: this.entry.base, name})
       }
     },
     async createText() {
-      const entry = await this.$store.dispatch('createText', {base: this.entry.base, driveBase: this.entry.driveBase})
+      const entry = await this.$store.dispatch('createText', {base: this.entry.base})
       this.$router.push(entry.path)
     },
     async uploadFile() {

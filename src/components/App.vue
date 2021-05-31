@@ -29,9 +29,6 @@ import SpatialEntries from './SpatialEntries.vue'
 import ViewEntry from './ViewEntry.vue'
 import SingleEntry from './SingleEntry.vue'
 
-// import FileType from 'file-type'
-// import mime from 'mime'
-
 export default {
   components: {
     ListEntries,

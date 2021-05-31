@@ -2,8 +2,8 @@
 <div class="view-entry" :class="{[entry.kind]: true, single}" @click.stop="onClick" @dblclick="onDblclick">
   <a href="#" class="pill save" v-if="changed" @click.prevent="save">save changes</a>
 
-  <img :draggable="false" v-if="entry.kind === 'image'" :src="entry.drivePath" @load="onLoad" />
-  <video preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.drivePath" controls></video>
+  <img :draggable="false" v-if="entry.kind === 'image'" :src="entry.path" @load="onLoad" />
+  <video preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" controls></video>
   <textarea v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined"></textarea>
   <div v-else-if="entry.kind === 'directory'">
     <i class="material-icons">folder</i><br />
