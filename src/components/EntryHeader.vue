@@ -12,6 +12,7 @@
     <a class="pill" v-if="entry.isDirectory" @click.stop="createText" href="#"><i class="material-icons">description</i> add text</a>
     <a class="pill" v-if="entry.path !== '/'" @click.stop="renameEntry" href="#"><i class="material-icons">edit</i> rename</a>
     <a class="pill" v-if="entry.path !== '/'" @click.stop="deleteEntry" href="#"><i class="material-icons">delete</i> delete {{entry.form}}</a>
+    <a class="pill" v-if="$store.state.selection.size" href="#" @click.prevent="deleteSelected"><i class="material-icons">delete</i> delete selected</a>
   </nav>
 </header>
 </template>
@@ -68,6 +69,12 @@ export default {
       if(confirm(`Delete ${this.entry.name}?`)) {
         this.$router.replace(this.entry.parent)
         this.$store.dispatch('deleteEntry', this.entry)
+      }
+    },
+    async deleteSelected() {
+      const num = this.$store.state.selection.size
+      if(confirm(`Delete ${num} item${num === 1 ? '' : 's'}?`)) {
+        this.$store.dispatch('deleteSelected')
       }
     },
     async renameEntry() {

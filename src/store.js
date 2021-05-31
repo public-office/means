@@ -19,9 +19,11 @@ async function readFile(file, type = 'buffer') {
   })
 }
 
-function getCoords({top, left}) {
-  const x = left - (window.innerWidth / 2)
-  const y = top - (window.innerHeight / 2)
+function getCoords({top, left}, getters) {
+  const [xOffset, yOffset] = getters.offset
+
+  const x = left - (window.innerWidth / 2) - xOffset
+  const y = top - (window.innerHeight / 2) - yOffset
 
   return {x, y}
 }
@@ -39,14 +41,7 @@ function getPosition(entry, state, getters) {
   width = width ? Number(width) : undefined
   height = height ? Number(height) : undefined
 
-  let [xOffset, yOffset] = [0, 0]
-  if(getters.baseEntry && getters.baseEntry.stat && getters.baseEntry.stat.metadata) {
-    xOffset = getters.baseEntry.stat.metadata.xOffset
-    yOffset = getters.baseEntry.stat.metadata.yOffset
-  }
-
-  xOffset = xOffset ? Number(xOffset) : 0
-  yOffset = yOffset ? Number(yOffset) : 0
+  let [xOffset, yOffset] = getters.offset
 
   x += xOffset
   y += yOffset
@@ -88,6 +83,18 @@ export default {
     loadingTime: 0
   },
   getters: {
+    offset(state, getters) {
+      let [xOffset, yOffset] = [0, 0]
+      if(getters.baseEntry && getters.baseEntry.stat && getters.baseEntry.stat.metadata) {
+        xOffset = getters.baseEntry.stat.metadata.xOffset
+        yOffset = getters.baseEntry.stat.metadata.yOffset
+      }
+
+      xOffset = xOffset ? Number(xOffset) : 0
+      yOffset = yOffset ? Number(yOffset) : 0
+
+      return [xOffset, yOffset]
+    },
     name(state) {
       return Path.basename(state.path)
     },
@@ -308,6 +315,17 @@ export default {
       }
       dispatch('fetchEntries')
     },
+    async deleteSelected({state, dispatch, getters}) {
+      for(const path of state.selection.values()) {
+        const entry = getters.findEntry(path)
+        if(entry.isDirectory) {
+          await drive.rmdir(entry.path, {redursive: true})
+        } else {
+          await drive.unlink(entry.path)
+        }
+      }
+      dispatch('fetchEntries')
+    },
     async renameEntry({dispatch}, {entry, name}) {
       const destExt = Path.extname(name)
       if(entry.ext !== destExt) {
@@ -352,13 +370,7 @@ export default {
     async dragEnd({commit, getters, state, dispatch}) {
       const entry = getters.findEntry(state.drag.entry)
 
-      let [xOffset, yOffset] = [0, 0]
-      if(getters.baseEntry && getters.baseEntry.stat && getters.baseEntry.stat.metadata) {
-        xOffset = getters.baseEntry.stat.metadata.xOffset
-        yOffset = getters.baseEntry.stat.metadata.yOffset
-      }
-      xOffset = xOffset ? Number(xOffset) : 0
-      yOffset = yOffset ? Number(yOffset) : 0
+      let [xOffset, yOffset] = getters.offset
 
       if(entry) {
         let {x, y, z, width, height} = getPosition(entry, state, getters)
@@ -389,7 +401,7 @@ export default {
     async drop({state, getters, dispatch}, event) {
       const files = event.dataTransfer.files
 
-      const {x, y} = getCoords({top: event.clientY, left: event.clientX})
+      const {x, y} = getCoords({top: event.clientY, left: event.clientX}, getters)
 
       dispatch('uploadFiles', {files, x, y})
     },
@@ -425,11 +437,15 @@ export default {
         await dispatch('updateMetadata', {entry, metadata: {z}})
       }
     },
-    async createDirectory({dispatch, state}, {base, name}) {
+    async createDirectory({dispatch, state, getters}, {base, name}) {
+      const [xOffset, yOffset] = getters.offset
+
       const path = Path.join(base, name)
       await drive.mkdir(path)
       const z = state.entries.length
-      await dispatch('updateMetadata', {entry: {path}, metadata: {z}})
+      const x = 0 - xOffset
+      const y = 0 - yOffset
+      await dispatch('updateMetadata', {entry: {path}, metadata: {x, y, z}})
       await dispatch('fetchEntries')
     },
     async createText({dispatch, state, getters}, {base}) {
@@ -444,7 +460,9 @@ export default {
         .filter(m => m)
         .map(m => m[1] ? Number(m[1].trim()) : 0)
 
-      const metadata = {z: state.entries.length, type: 'text/plain', width, height}
+      const [xOffset, yOffset] = getters.offset
+
+      const metadata = {z: state.entries.length, type: 'text/plain', width, height, x: 0 - xOffset, y: 0 - yOffset}
 
       const maxNum = nums.length ? Math.max(...nums) : null
 
