@@ -406,8 +406,10 @@ export default {
       dispatch('uploadFiles', {files, x, y})
     },
     async uploadFiles({state, getters, dispatch}, {files, x, y}) {
-      x = x || 0
-      y = y || 0
+      const [xOffset, yOffset] = getters.offset
+      
+      x = x || 0 - xOffset
+      y = y || 0 - yOffset
 
       let filesArr = Array.from(files)
       let z = state.entries.length
