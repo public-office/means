@@ -8,6 +8,7 @@
     :single="single"></SpatialEntries>
 
   <footer>
+    <span>{{peersText}}</span>
     <a class="pill" href="#" @click.prevent="forkDrive"><i class="material-icons">content_copy</i> fork</a>
   </footer>
 </div>
@@ -45,6 +46,10 @@ export default {
     }
   },
   computed: {
+    peersText() {
+      const {peers} = this.$store.state.info
+      return `${peers} peer${peers != 1 ? 's' : ''}`
+    },
     single() {
       return this.$store.getters.single(this.$route.path)
     }
