@@ -373,13 +373,15 @@ export default {
       const ext = 'txt'
       let name = 'untitled'
 
+      const [width, height] = [320, 200]
+
       const nums = state.entries
         .map(e => e.name)
         .map(n => n.match(/untitled( \d+)?(\.txt)?$/i))
         .filter(m => m)
         .map(m => m[1] ? Number(m[1].trim()) : 0)
 
-      const metadata = {z: state.entries.length, type: 'text/plain'}
+      const metadata = {z: state.entries.length, type: 'text/plain', width, height}
 
       const maxNum = nums.length ? Math.max(...nums) : null
 
