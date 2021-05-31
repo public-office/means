@@ -159,7 +159,6 @@ export default {
         }
 
         let icon = (kind === 'directory') ? 'folder' : 'insert_drive_file'
-        if(path === '/') icon = 'home'
         if(kind === 'image') icon = 'image'
         if(kind === 'video') icon = 'movie'
         if(kind === 'pdf') icon = 'picture_as_pdf'
