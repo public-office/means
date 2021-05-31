@@ -8,7 +8,7 @@
 
   <img class="yield" :draggable="false" v-if="entry.kind === 'image'" :src="entry.path" @load="onLoad" />
   <video class="yield" preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" controls></video>
-  <textarea class="yield" v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined"></textarea>
+  <textarea class="yield" v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined" @wheel.stop></textarea>
   <iframe class="yield" v-else-if="single && entry.kind === 'pdf'" :src="src" />
   <div v-else>
     <i class="material-icons">{{entry.icon}}</i><br />

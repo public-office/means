@@ -123,6 +123,22 @@ export default {
       }
     }
 
+    const draggable = {
+      listeners: {
+        start: event => {
+          const entry = event.target.getAttribute('data-entry')
+          this.$store.dispatch('dragStart', entry)
+        },
+        move: event => {
+          const {dx, dy} = event 
+          this.$store.dispatch('dragMove', {dx, dy})
+        },
+        end: event => {
+          this.$store.dispatch('dragEnd')
+        }
+      }
+    }
+
     interact('.spatial-entry.resizable.aspect')
       .resizable({
         ...resizable,
@@ -138,21 +154,10 @@ export default {
 
     interact('.spatial-entry.draggable')
       .styleCursor(false)
-      .draggable({
-        listeners: {
-          start: event => {
-            const entry = event.target.getAttribute('data-entry')
-            this.$store.dispatch('dragStart', entry)
-          },
-          move: event => {
-            const {dx, dy} = event 
-            this.$store.dispatch('dragMove', {dx, dy})
-          },
-          end: event => {
-            this.$store.dispatch('dragEnd')
-          }
-        }
-      })
+      .draggable(draggable)
+
+    interact('.spatial-entries')
+      .draggable(draggable)
   },
   methods: {
     onDrop(event) {

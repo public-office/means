@@ -1,5 +1,5 @@
 <template>
-<div>
+<div @wheel.prevent>
   <div class="loading" v-if="$store.state.loading && $store.state.loadingTime > 0">
     <div class="message">
       <Spinner></Spinner>

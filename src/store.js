@@ -28,8 +28,10 @@ function getCoords({top, left}) {
 
 window.objectCache = {}
 
-function getPosition(entry, drag) {
+function getPosition(entry, state, getters) {
   let {x, y, z, width, height} = entry.stat.metadata
+
+  const {drag} = state
 
   x = x ? Number(x) : 0
   y = y ? Number(y) : 0
@@ -37,14 +39,31 @@ function getPosition(entry, drag) {
   width = width ? Number(width) : undefined
   height = height ? Number(height) : undefined
 
-  if(drag && drag.entry === entry.path) {
-    z = MAX_Z_INDEX
-    if(drag.resize) {
-      width = drag.resize.width
-      height = drag.resize.height
-      x = (drag.resize.left + (width / 2)) - (window.innerWidth / 2)
-      y = (drag.resize.top + (height / 2)) - (window.innerHeight / 2)
-    } else {
+  let [xOffset, yOffset] = [0, 0]
+  if(getters.baseEntry && getters.baseEntry.stat && getters.baseEntry.stat.metadata) {
+    xOffset = getters.baseEntry.stat.metadata.xOffset
+    yOffset = getters.baseEntry.stat.metadata.yOffset
+  }
+
+  xOffset = xOffset ? Number(xOffset) : 0
+  yOffset = yOffset ? Number(yOffset) : 0
+
+  x += xOffset
+  y += yOffset
+
+  if(drag) {
+    if(drag.entry === entry.path) {
+      z = MAX_Z_INDEX
+      if(drag.resize) {
+        width = drag.resize.width
+        height = drag.resize.height
+        x = (drag.resize.left + (width / 2)) - (window.innerWidth / 2)
+        y = (drag.resize.top + (height / 2)) - (window.innerHeight / 2)
+      } else {
+        x += drag.dx
+        y += drag.dy
+      }
+    } else if(!drag.entry) {
       x += drag.dx
       y += drag.dy
     }
@@ -59,6 +78,7 @@ export default {
     info: {},
     stat: null,
     baseStat: null,
+    baseMetadata: null,
     entries: [],
     drag: null,
     interacting: false,
@@ -81,7 +101,15 @@ export default {
           path = Path.dirname(path)
         }
       }
-      if(path && state.baseStat) return getters.createEntry(path, state.baseStat)
+      let baseStat = {...state.baseStat}
+      if(state.baseMetadata) baseStat = {
+        ...baseStat,
+        metadata: {
+          ...baseStat.metadata,
+          ...state.baseMetadata
+        }
+      }
+      if(path && state.baseStat) return getters.createEntry(path, baseStat)
     },
     isFile(state) {
       return state.stat && state.stat.isFile && state.stat.isFile()
@@ -151,7 +179,7 @@ export default {
       return state.entries.map(entry => {
         let dragging = false
 
-        let {x, y, z, width, height} = getPosition(entry, state.drag)
+        let {x, y, z, width, height} = getPosition(entry, state, getters)
 
         if(state.drag && state.drag.entry === entry.name) dragging = true
 
@@ -223,14 +251,24 @@ export default {
       let baseStat
 
       const stat = await drive.stat(state.path)
+      let basePath = state.path
       if(stat.isDirectory()) {
         baseStat = stat
       } else {
-        const base = Path.dirname(state.path)
-        baseStat = await drive.stat(base)
+        basePath = Path.dirname(state.path)
+        baseStat = await drive.stat(basePath)
       }
 
-      commit('update', {baseStat})
+      let baseMetadata
+      if(basePath === '/') {
+        const indexStat = await drive.stat('index.json')
+        baseMetadata = {
+          xOffset: indexStat.metadata.xOffset,
+          yOffset: indexStat.metadata.yOffset,
+        }
+      }
+
+      commit('update', {baseStat, baseMetadata})
     },
     async fetchEntries({state, commit, getters}) {
       const stat = await drive.stat(state.path)
@@ -257,9 +295,10 @@ export default {
       clearInterval(window.loadingInterval)
       commit('update', {entries, loading: false})
     },
-    async updateMetadata({commit}, {entry, metadata}) {
-      commit('updateLocalEntryMetadata', {entry, metadata})
-      await drive.updateMetadata(entry.path, metadata)
+    async updateMetadata({commit}, {entry, metadata, base}) {
+      commit('updateLocalEntryMetadata', {entry, metadata, base})
+      const path = base && entry.path === '/' ?  '/index.json' : entry.path
+      await drive.updateMetadata(path, metadata)
     },
     async deleteEntry({dispatch}, entry) {
       if(entry.isDirectory) {
@@ -313,15 +352,34 @@ export default {
     async dragEnd({commit, getters, state, dispatch}) {
       const entry = getters.findEntry(state.drag.entry)
 
+      let [xOffset, yOffset] = [0, 0]
+      if(getters.baseEntry && getters.baseEntry.stat && getters.baseEntry.stat.metadata) {
+        xOffset = getters.baseEntry.stat.metadata.xOffset
+        yOffset = getters.baseEntry.stat.metadata.yOffset
+      }
+      xOffset = xOffset ? Number(xOffset) : 0
+      yOffset = yOffset ? Number(yOffset) : 0
+
       if(entry) {
-        const {x, y, z, width, height} = getPosition(entry, state.drag)
+        let {x, y, z, width, height} = getPosition(entry, state, getters)
+
+        x -= xOffset
+        y -= yOffset
+
         const metadata = {x, y, z, width, height}
 
         commit('update', {drag: null})
         await dispatch('updateMetadata', {entry, metadata})
         await dispatch('restack', {entry})
       } else {
+        xOffset += state.drag.dx
+        yOffset += state.drag.dy
+
+        const metadata = {xOffset, yOffset}
+
         commit('update', {drag: null})
+        await dispatch('updateMetadata', {entry: getters.baseEntry, metadata, base: true})
+        await dispatch('fetchBase')
       }
 
       setTimeout(function() {
@@ -353,9 +411,9 @@ export default {
 
       dispatch('fetchEntries')
     },
-    async restack({state, dispatch}, {entry}) {
+    async restack({state, getters, dispatch}, {entry}) {
       const entries = state.entries.map(e => {
-        let {z} = getPosition(e, state.drag)
+        let {z} = getPosition(e, state, getters)
         if(e.name === entry.name) z = MAX_Z_INDEX
         return {entry: e,  z}
       })
@@ -440,21 +498,39 @@ export default {
       }
     },
     updatePath(state, path) {
+      state.entries = []
+      state.baseStat = state.baseMeta = null
       window.loadingInterval = setInterval(function() {
         state.loading++
       }, 1000)
       state.loading = true
       state.path = decodeURIComponent(path)
     },
-    updateLocalEntryMetadata(state, {entry, metadata}) {
-      state.entries = state.entries.map(e => {
-        if(e.path === entry.path) {
-          let copy = _cloneDeep(e)
-          _update(copy, 'stat.metadata', value => ({...value, ...metadata}))
-          return {...copy}
+    updateLocalEntryMetadata(state, {entry, metadata, base}) {
+      if(base) {
+        state.baseStat = {
+          ...state.baseStat,
+          metadata: {
+            ...state.baseStat.metadata,
+            ...metadata
+          }
         }
-        return e
-      })
+        if(entry.path === '/') {
+          state.baseMetadata = {
+            ...state.baseMetadata,
+            ...metadata
+          }
+        }
+      } else {
+        state.entries = state.entries.map(e => {
+          if(e.path === entry.path) {
+            let copy = _cloneDeep(e)
+            _update(copy, 'stat.metadata', value => ({...value, ...metadata}))
+            return {...copy}
+          }
+          return e
+        })
+      }
     }
   }
 }
