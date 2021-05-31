@@ -228,7 +228,7 @@ export default {
       let entries = await drive.readdir(getters.baseEntry.base)
 
       entries = entries.filter(entry => {
-        const path = Path.join(state.path, entry)
+        const path = Path.join(getters.baseEntry.path, entry)
         return !IGNORE_FILES.includes(path)
       })
 
