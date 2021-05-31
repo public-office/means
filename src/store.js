@@ -167,7 +167,7 @@ export default {
           }
         }
 
-        const resizable = entry.kind !== 'directory'
+        const resizable = !['directory', 'pdf', 'file'].includes(entry.kind)
         const draggable = true
         const aspect = entry.kind !== 'text'
 
