@@ -151,12 +151,14 @@ export default {
   },
   methods: {
     async getContent() {
-      if(this.entry.kind === 'text') this.text = await this.$store.getters.getEntryText(this.entry)
+      if(this.entry.kind === 'text') {
+        this.text = await this.$store.getters.getEntryText(this.entry)
+        this.loading = false
+      }
       if(this.single && this.entry.kind === 'pdf') {
         this.src = await this.$store.getters.getEntryContent(this.entry)
+        this.loading = false
       }
-
-      this.loading = false
     },
     onClick() {
       if(!this.$store.state.interacting) this.$emit('click')
