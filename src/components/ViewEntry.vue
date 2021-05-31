@@ -92,7 +92,7 @@
       width: 100%;
       resize: none;
       padding: var(--pad);
-      font-family: monospace;
+      font-family: 'TW', monospace;
     }
   }
   &.image {
