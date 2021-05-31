@@ -14,13 +14,19 @@
 </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 footer {
   position: absolute;
   bottom: 0;
   right: 0;
   z-index: 2;
   margin: var(--pad);
+  display: flex;
+  align-items: center;
+  > span {
+    display: inline-block;
+    margin-right: 2rem;
+  }
 }
 </style>
 

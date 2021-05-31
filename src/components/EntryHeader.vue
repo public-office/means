@@ -6,7 +6,7 @@
     </router-link>
     <h1><i class="material-icons">{{entry.icon}}</i> {{entry.displayPath}}</h1>
   </div>
-  <nav class="right">
+  <nav class="right" v-if="$store.getters.writable">
     <a class="pill" v-if="entry.isDirectory" @click.stop="uploadFile" href="#"><i class="material-icons">insert_drive_file</i> upload file</a>
     <a class="pill" v-if="entry.isDirectory" @click.stop="createFolder" href="#"><i class="material-icons">folder</i> add folder</a>
     <a class="pill" v-if="entry.isDirectory" @click.stop="createText" href="#"><i class="material-icons">description</i> add text</a>

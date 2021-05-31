@@ -64,6 +64,9 @@ export default {
     name(state) {
       return Path.basename(state.path)
     },
+    writable(state) {
+      return state.info && state.info.writable
+    },
     baseEntry(state, getters) {
       let path = state.path
       if(state.stat) {
@@ -187,7 +190,7 @@ export default {
     async fetchBase({state, commit, getters}) {
       const info = await drive.getInfo()
       commit('update', {info})
- 
+
       let baseStat
 
       const stat = await drive.stat(state.path)
