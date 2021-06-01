@@ -96,7 +96,8 @@ export default {
   },
   computed: {
     peersText() {
-      const {peers} = this.$store.state.info
+      let peers = 0
+      if(this.$store.state.info.peers !== undefined) peers = this.$store.state.info.peers
       return `${peers} peer${peers != 1 ? 's' : ''}`
     },
     single() {
