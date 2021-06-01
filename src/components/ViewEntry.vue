@@ -7,7 +7,7 @@
   <a href="#" class="pill save" v-if="single && changed" @click.prevent="save">save changes</a>
 
   <img class="yield" :draggable="false" v-if="entry.kind === 'image'" :src="entry.path" @load="onLoad" />
-  <video class="yield" preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" @loadedmetadata="onLoad"></video>
+  <video class="yield" preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" @loadedmetadata="onLoad" :controls="single"></video>
   <textarea class="yield" v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined" @wheel.stop :autofocus="single && $store.getters.writable"></textarea>
   <iframe class="yield" v-else-if="single && entry.kind === 'pdf'" :src="src" />
   <div v-else>
