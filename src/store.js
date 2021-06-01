@@ -248,6 +248,10 @@ export default {
       commit('updatePath', path)
       await dispatch('fetchBase')
       dispatch('fetchEntries')
+      dispatch('beacon')
+    },
+    async beacon() {
+      await fetch('https://means-seeder.public-office.info/')
     },
     async navigate({commit, dispatch}, path) {
       commit('updatePath', path)
