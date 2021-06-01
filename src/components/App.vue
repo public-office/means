@@ -100,7 +100,7 @@ export default {
       return `${peers} peer${peers != 1 ? 's' : ''}`
     },
     single() {
-      return this.$store.getters.single(this.$route.path)
+      return this.$store.getters.single
     }
   },
   methods: {

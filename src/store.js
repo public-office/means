@@ -240,7 +240,7 @@ export default {
       }
     },
     single(state, getters) {
-      return path => getters.findEntry(path)
+      return getters.findEntry(state.path)
     }
   },
   actions: {
