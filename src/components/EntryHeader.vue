@@ -1,12 +1,12 @@
 <template>
 <header @click.stop>
   <div class="main">
-    <router-link v-if="$route.path !== '/'" class="back pill" :to="entry.parentLink">
+    <router-link v-if="$route.path !== '/'" class="pointer back pill" :to="entry.parentLink">
       <i class="material-icons">arrow_back</i>
     </router-link>
-    <h1><i class="material-icons">{{entry.icon}}</i> {{entry.displayPath}}</h1>
+    <h1 class="pointer"><i class="material-icons">{{entry.icon}}</i> {{entry.displayPath}}</h1>
   </div>
-  <nav class="right" v-if="$store.getters.writable">
+  <nav class="pointer right" v-if="$store.getters.writable">
     <a class="pill" v-if="entry.isDirectory" @click.stop="uploadFile" href="#"><i class="material-icons">insert_drive_file</i> upload file</a>
     <a class="pill" v-if="entry.isDirectory" @click.stop="createFolder" href="#"><i class="material-icons">folder</i> add folder</a>
     <a class="pill" v-if="entry.isDirectory" @click.stop="createText" href="#"><i class="material-icons">description</i> add text</a>
@@ -26,6 +26,11 @@ header {
   display: flex;
   justify-content: space-between;
   z-index: 2;
+  pointer-events: none;
+  cursor: default;
+  .pointer {
+    pointer-events: initial;
+  }
   .main {
     display: flex;
     align-items: flex-start;
