@@ -7,7 +7,7 @@
   <a href="#" class="pill save" v-if="single && changed" @click.prevent="save">save changes</a>
 
   <img class="yield" :draggable="false" v-if="entry.kind === 'image'" :src="entry.path" @load="onLoad" />
-  <video class="yield" preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" controls></video>
+  <video class="yield" preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" @loadedmetadata="onLoad"></video>
   <textarea class="yield" v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined" @wheel.stop :autofocus="single && $store.getters.writable"></textarea>
   <iframe class="yield" v-else-if="single && entry.kind === 'pdf'" :src="src" />
   <div v-else>
@@ -97,24 +97,34 @@
       color: black;
     }
   }
+  &.video {
+    video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    &.single video {
+      max-width: calc(100vw - var(--pad) * 2);
+      max-height: calc(100vh - 14rem);
+      object-fit: contain;
+      width: 100%;
+      height: 100%;
+    }
+  }
   &.image {
     img {
       display: block;
     }
-    &:not(.single) {
-      img {
-        width: 100%;
-        height: auto;
-      }
+    &:not(.single) img {
+      width: 100%;
+      height: auto;
     }
-    &.single {
-      img {
-        max-width: calc(100vw - var(--pad) * 2);
-        max-height: calc(100vh - 14rem);
-        object-fit: contain;
-        width: 100%;
-        height: 100%;
-      }
+    &.single img {
+      max-width: calc(100vw - var(--pad) * 2);
+      max-height: calc(100vh - 14rem);
+      object-fit: contain;
+      width: 100%;
+      height: 100%;
     }
   }
 }
@@ -175,11 +185,23 @@ export default {
       this.loading = false
       
       const {entry} = this
+
+      if(!['image', 'video'].includes(entry.kind)) return
+
       const {metadata} = entry.stat
 
+      const [maxWidth, maxHeight] = [640, 640]
+
       if(!metadata.width || !metadata.height) {
-        let [width, height] = [event.target.naturalWidth, event.target.naturalHeight]
-        const [maxWidth, maxHeight] = [640, 640]
+        let [width, height] = [0, 0]
+
+        if(entry.kind === 'image') {
+          width = event.target.naturalWidth
+          height = event.target.naturalHeight
+        } else if(entry.kind === 'video') {
+          width = event.target.videoWidth
+          height = event.target.videoHeight
+        }
 
         if(width > maxWidth) {
           height *= maxWidth / width
