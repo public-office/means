@@ -251,7 +251,9 @@ export default {
       dispatch('beacon')
     },
     async beacon() {
-      await fetch('https://means-seeder.public-office.info/')
+      console.warn(process.env.NODE_ENV)
+      const seederUrl = process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:3000/' : 'https://means-seeder.public-office.info/'
+      await fetch(seederUrl)
     },
     async navigate({commit, dispatch}, path) {
       commit('updatePath', path)
