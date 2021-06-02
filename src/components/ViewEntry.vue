@@ -8,6 +8,7 @@
 
   <img class="yield" :draggable="false" v-if="entry.kind === 'image'" :src="entry.path" @load="onLoad" />
   <video class="yield" preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" @loadedmetadata="onLoad" :controls="single"></video>
+  <audio class="yield" v-else-if="entry.kind === 'audio' && single" :src="entry.path" controls></audio>
   <textarea class="yield" v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined" @wheel.stop :autofocus="single && $store.getters.writable"></textarea>
   <iframe class="yield" v-else-if="single && entry.kind === 'pdf'" :src="src" />
   <div v-else>
@@ -47,6 +48,7 @@
   &:not(.single):not(.visual) {
     text-align: center;
     padding: 0.2rem 0.5rem 0.5rem;
+    max-width: 13em;
     i {
       font-size: 4.8rem;
     }

@@ -156,12 +156,14 @@ export default {
           if(type.startsWith('image/')) kind = 'image'
           if(type.startsWith('video/')) kind = 'video'
           if(type.startsWith('text/')) kind = 'text'
+          if(type.startsWith('audio/')) kind = 'audio'
         }
 
         let icon = (kind === 'directory') ? 'folder' : 'insert_drive_file'
         if(kind === 'image') icon = 'image'
         if(kind === 'video') icon = 'movie'
         if(kind === 'pdf') icon = 'picture_as_pdf'
+        if(kind === 'audio') icon = 'volume_up'
 
         const base = isFile ? Path.dirname(path) : path
 
@@ -179,7 +181,7 @@ export default {
 
         const ext = Path.extname(path)
         
-        const visual = !['pdf', 'directory'].includes(kind)
+        const visual = !['pdf', 'directory', 'audio'].includes(kind)
 
         return {
           path, displayPath, base, parent, parentLink, kind, name, stat, isDirectory, isFile, form, type, icon, link, ext, visual
