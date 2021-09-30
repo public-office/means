@@ -6,7 +6,7 @@
   "author": "Matt Lenz <matt@mattlenz.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "cp src/dev.html dev/index.html && vite",
+    "dev": "mkdir -p dev && cp src/dev.html dev/index.html && vite",
     "build": "vite build && cat dist/.ui/manifest.json | node src/index.html.js > dist/.ui/ui.html",
     "deploy": "dotenv -- bash -c 'hyp drive sync -y ./dist $DEPLOY_DRIVE'"
   },
