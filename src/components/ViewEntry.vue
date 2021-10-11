@@ -9,7 +9,7 @@
   <img class="yield" :draggable="false" v-if="entry.kind === 'image'" :src="entry.path" @load="onLoad" />
   <video class="yield" preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" @loadedmetadata="onLoad" :controls="entry.settings.controls" :muted="entry.settings.muted" :autoplay="entry.settings.autoplay" :loop="entry.settings.loop"></video>
   <audio class="yield" v-else-if="entry.kind === 'audio' && single" :src="entry.path" controls :autoplay="entry.settings.autoplay" :loop="entry.settings.loop"></audio>
-  <textarea class="yield" v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined" @wheel.stop :autofocus="single && $store.getters.writable"></textarea>
+  <textarea class="yield" v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined" @wheel.stop :autofocus="single && $store.getters.writable" :style="textStyle"></textarea>
   <iframe class="yield" v-else-if="single && entry.kind === 'pdf'" :src="src" />
   <div v-else>
     <i class="material-icons">{{entry.icon}}</i><br />
@@ -165,6 +165,17 @@ export default {
   },
   async mounted() {
     this.getContent()
+  },
+  computed: {
+    settings()  {
+      return this.entry.settings
+    },
+    textStyle() {
+      return {
+        fontFamily: this.settings.fontFamily,
+        fontSize: this.settings.fontSize+'px'
+      }
+    }
   },
   methods: {
     async getContent() {

@@ -12,6 +12,22 @@
     <label class="check"><input type="checkbox" name="autoplay" :checked="settings.autoplay" @change="handleSetting" /> Autoplay</label>
     <label class="check"><input type="checkbox" name="loop" :checked="settings.loop" @change="handleSetting" /> Loop</label>
   </fieldset>
+  <fieldset v-if="entry.kind === 'text'">
+    <label>Text options</label>
+  </fieldset>
+  <fieldset v-if="entry.kind === 'text'">
+    <label>Font family</label>
+    <select @change="handleSetting" name="fontFamily" :value="settings.fontFamily">
+      <option value="TW">TW</option>
+      <option value="Arial">Arial</option>
+      <option value="Helvetica">Helvetica</option>
+      <option value="Times New Roman">Times New Roman</option>
+    </select>
+  </fieldset>
+  <fieldset v-if="entry.kind === 'text'">
+    <label>Font size</label>
+    <input type="number" name="fontSize" :value="settings.fontSize" @change="handleSetting" />
+  </fieldset>
 </form>
 </template>
 
@@ -37,8 +53,13 @@ export default {
     },
     handleSetting(event) {
       if(event.target.type === 'checkbox') {
-        this.updateMetadata({ [event.target.name]: event.target.checked })
+        return this.updateMetadata({ [event.target.name]: event.target.checked })
       }
+      if(event.target.type === 'number') {
+        return this.updateMetadata({ [event.target.name]: parseInt(event.target.value) })
+      }
+
+      return this.updateMetadata({ [event.target.name]: event.target.value })
     }
   }
 }

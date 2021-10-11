@@ -89,6 +89,8 @@ label {
   margin-bottom: 0.3rem;
 }
 input[type="text"],
+input[type="number"],
+select,
 label.check {
   font-family: "TW";
   width: 100%;

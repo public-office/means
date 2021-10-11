@@ -193,7 +193,9 @@ export default {
           loop = true,
           autoplay = true,
           muted = true,
-          controls = true
+          controls = true,
+          fontFamily = 'TW',
+          fontSize = 18
         } = metadata
 
         const bg = form === 'folder' ? metadata.bg : null
@@ -207,7 +209,9 @@ export default {
           autoplay: JSON.parse(autoplay),
           loop: JSON.parse(loop),
           muted: JSON.parse(muted),
-          controls: JSON.parse(controls)
+          controls: JSON.parse(controls),
+          fontFamily,
+          fontSize
         }
 
         return {
@@ -343,10 +347,11 @@ export default {
       clearInterval(window.loadingInterval)
       commit('update', {entries, loading: false})
     },
-    async updateMetadata({commit}, {entry, metadata, base}) {
+    async updateMetadata({commit, dispatch}, {entry, metadata, base}) {
       commit('updateLocalEntryMetadata', {entry, metadata, base})
       const path = base && entry.path === '/' ?  '/index.json' : entry.path
       await drive.updateMetadata(path, metadata)
+      dispatch('fetchEntries')
     },
     async deleteEntry({dispatch}, entry) {
       if(entry.isDirectory) {
