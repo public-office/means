@@ -21,6 +21,7 @@
     "dotenv-cli": "^4.0.0",
     "file-type": "./lib/file-type",
     "interactjs": "^1.10.11",
+    "is-dark-color": "^1.2.0",
     "lodash-es": "^4.17.21",
     "material-icons-base64": "^1.1.5",
     "mime": "^2.5.2",

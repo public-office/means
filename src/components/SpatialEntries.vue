@@ -1,8 +1,8 @@
 <template>
-<div class="spatial-entries" @dragover.prevent @drop.prevent="onDrop" @click="onClickBg">
+<div class="spatial-entries" @dragover.prevent @drop.prevent="onDrop" @click="onClickBg" :style="style" @mousewheel="onWheel">
   <EntryHeader
-    v-if="!single && $store.getters.baseEntry"
-    :entry="$store.getters.baseEntry"></EntryHeader>
+    v-if="!single && baseEntry"
+    :entry="baseEntry"></EntryHeader>
   <div class="container">
     <div
       class="spatial-entry"
@@ -58,10 +58,10 @@ header {
 .spatial-entry {
   cursor: grab;
   &.selected {
-    color: blue;
-    outline: 1px solid blue!important;
+    color: var(--highlight);
+    outline: 1px solid var(--highlight)!important;
     .handle {
-      border-color: blue;
+      border-color: var(--highlight);
     }
   }
   &.hover {
@@ -78,7 +78,7 @@ header {
     width: 0.8rem;
     height: 0.8rem;
     border: 1px solid;
-    background: white;
+    background: var(--bg);
     z-index: 2;
     &.top.left {top: 0; left: 0; transform: translate(-50%, -50%)}
     &.top.right {top: 0; right: 0; transform: translate(50%, -50%)}
@@ -104,6 +104,17 @@ export default {
   computed: {
     base() {
       return this.$store.getters.base
+    },
+    baseEntry() {
+      return this.$store.getters.baseEntry
+    },
+    settings() {
+      return this.baseEntry.settings
+    },
+    style() {
+      if(this.$store.getters.baseEntry) return {
+        backgroundColor: this.baseEntry.settings.bg
+      }
     }
   },
   mounted() {
@@ -132,7 +143,11 @@ export default {
         },
         move: event => {
           const {dx, dy} = event 
-          this.$store.dispatch('dragMove', {dx, dy})
+          if(this.$store.state.drag.entry) {
+            this.$store.dispatch('dragMove', {dx, dy})
+          } else {
+            this.$store.dispatch('dragMove', {dx: this.settings.dragX ? dx : 0, dy: this.settings.dragY ? dy : 0})
+          }
         },
         end: event => {
           this.$store.dispatch('dragEnd')
@@ -161,6 +176,12 @@ export default {
       .draggable(draggable)
   },
   methods: {
+    onWheel(event) {
+      event.preventDefault()
+      this.$store.dispatch('dragStart', null)
+      this.$store.dispatch('dragMove', {dx: this.settings.scrollX ? event.deltaX : 0, dy: this.settings.scrollY ? 0 - event.deltaY : 0})
+      this.$store.dispatch('dragEnd')
+    },
     onDrop(event) {
       this.$store.dispatch('drop', event)
     },

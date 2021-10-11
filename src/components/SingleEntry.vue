@@ -1,5 +1,6 @@
 <template>
 <div class="outer" @click.prevent="onClickBg">
+  <div class="bg"></div>
   <EntryHeader :entry="entry"></EntryHeader>
   <ViewEntry :entry="entry" single></ViewEntry>
 </div>
@@ -9,9 +10,17 @@
 .outer {
   position: absolute;
   top: 0; left: 0;
-  background: rgba(255, 255, 255, 0.9);
   width: 100%; height: 100%;
   z-index: 3;
+  backdrop-filter: blur(2px);
+}
+.bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  background-color: var(--bg);
+  opacity: 0.5;
 }
 .view-entry {
   position: absolute;

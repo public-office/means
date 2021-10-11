@@ -7,8 +7,8 @@
   <a href="#" class="pill save" v-if="single && changed" @click.prevent="save">save changes</a>
 
   <img class="yield" :draggable="false" v-if="entry.kind === 'image'" :src="entry.path" @load="onLoad" />
-  <video class="yield" preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" @loadedmetadata="onLoad" :controls="single"></video>
-  <audio class="yield" v-else-if="entry.kind === 'audio' && single" :src="entry.path" controls></audio>
+  <video class="yield" preload="metadata" v-else-if="entry.kind === 'video'" :src="entry.path" @loadedmetadata="onLoad" :controls="entry.settings.controls" :muted="entry.settings.muted" :autoplay="entry.settings.autoplay" :loop="entry.settings.loop"></video>
+  <audio class="yield" v-else-if="entry.kind === 'audio' && single" :src="entry.path" controls :autoplay="entry.settings.autoplay" :loop="entry.settings.loop"></audio>
   <textarea class="yield" v-else-if="entry.kind === 'text'" @input="changed = true" v-model="text" :placeholder="single ? 'Write here...' : undefined" @wheel.stop :autofocus="single && $store.getters.writable"></textarea>
   <iframe class="yield" v-else-if="single && entry.kind === 'pdf'" :src="src" />
   <div v-else>
@@ -31,7 +31,7 @@
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: white;
+    background: var(--bg);
     z-index: 1;
     .spinner {
       position: absolute;
@@ -49,6 +49,7 @@
     text-align: center;
     padding: 0.2rem 0.5rem 0.5rem;
     max-width: 13em;
+    word-break: break-word;
     i {
       font-size: 4.8rem;
     }
@@ -70,12 +71,13 @@
     box-shadow: 0 0.2rem 0.75rem rgba(0, 0, 0, 0.3);
   }
   &.loading {
-    background: white;
+    background: var(--bg);
   }
   &.text {
     &:not(.single) {
       height: 100%;
-      background: white;
+      background: var(--bg);
+      color: var(--fg);
       textarea {
         pointer-events: none;
       }
@@ -87,7 +89,8 @@
       left: 0;
       bottom: 0;
       transform: none!important;
-      border-top: 1px solid;
+      background: var(--bg);
+      box-shadow: 0 0 0.5rem var(--shadow);
     }
     textarea {
       display: block;
@@ -96,7 +99,7 @@
       resize: none;
       padding: var(--pad);
       font-family: 'TW', monospace;
-      color: black;
+      color: var(--fg);
     }
   }
   &.video {

@@ -1,6 +1,8 @@
 <template>
 <div @wheel.prevent>
-  <settings v-if="$store.state.showSettings"></settings>
+  <modal v-if="$store.state.showSettings" @close="closeSettings">
+    <settings></settings>
+  </modal>
 
   <div class="loading" v-if="$store.state.loading && $store.state.loadingTime > 0">
     <div class="message">
@@ -19,8 +21,8 @@
   <footer>
     <span>{{peersText}}</span>
     <a class="pill" href="#" @click.prevent="forkDrive"><i class="material-icons">content_copy</i> fork</a>
-    <a href="#" class="pill" @click.stop="showSettings">
-      <i class="material-icons">settings</i> settings
+    <a href="#" class="pill" @click.stop="openSettings">
+      <i class="material-icons">settings</i> project settings
     </a>
   </footer>
 </div>
@@ -37,7 +39,7 @@
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    background: white;
+    background: var(--bg);
     box-shadow: 0 0.2rem 0.75rem rgba(0, 0, 0, 0.3);
     padding: var(--pad);
     border-radius: 0.5rem;
@@ -75,7 +77,9 @@ import SpatialEntries from './SpatialEntries.vue'
 import ViewEntry from './ViewEntry.vue'
 import SingleEntry from './SingleEntry.vue'
 import Spinner from './Spinner.vue'
+import Modal from './Modal.vue'
 import Settings from './Settings.vue'
+import isDarkColor from 'is-dark-color'
 
 export default {
   components: {
@@ -84,7 +88,8 @@ export default {
     ViewEntry,
     SingleEntry,
     Spinner,
-    Settings
+    Settings,
+    Modal
   },
   created() {
     this.$store.dispatch('init', this.$route.path)
@@ -92,13 +97,22 @@ export default {
   watch: {
     $route() {
       this.$store.dispatch('navigate', this.$route.path)
+    },
+    dark() {
+      document.body.classList[this.dark ? 'add' : 'remove']('invert')
     }
   },
   computed: {
+    dark() {
+      return this.bg && isDarkColor(this.bg)
+    },
+    bg() {
+      return this.$store.getters.baseEntry?.settings.bg
+    },
     peersText() {
       let peers = 0
       if(this.$store.state.info.peers !== undefined) peers = this.$store.state.info.peers
-      return `${peers} peer${peers != 1 ? 's' : ''}`
+      return `${peers === 0 ? 'no' : peers} peer${peers != 1 ? 's' : ''} connected`
     },
     single() {
       return this.$store.getters.single
@@ -108,8 +122,11 @@ export default {
     forkDrive() {
       this.$store.dispatch('fork')
     },
-    showSettings() {
+    openSettings() {
       this.$store.commit('update', {showSettings: true})
+    },
+    closeSettings() {
+      this.$store.commit('update', {showSettings: false})
     }
   }
 }

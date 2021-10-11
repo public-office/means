@@ -1,20 +1,30 @@
 <template>
-<header @click.stop>
-  <div class="main">
-    <router-link v-if="$route.path !== '/'" class="pointer back pill" :to="entry.parentLink">
-      <i class="material-icons">arrow_back</i>
-    </router-link>
-    <h1 class="pointer"><i class="material-icons">{{entry.icon}}</i> {{entry.displayPath}}</h1>
-  </div>
-  <nav class="pointer right" v-if="$store.getters.writable">
-    <a class="pill" v-if="entry.isDirectory" @click.stop="uploadFile" href="#"><i class="material-icons">insert_drive_file</i> upload file</a>
-    <a class="pill" v-if="entry.isDirectory" @click.stop="createFolder" href="#"><i class="material-icons">folder</i> add folder</a>
-    <a class="pill" v-if="entry.isDirectory" @click.stop="createText" href="#"><i class="material-icons">description</i> add text</a>
-    <a class="pill" v-if="entry.path !== '/'" @click.stop="renameEntry" href="#"><i class="material-icons">edit</i> rename</a>
-    <a class="pill" v-if="entry.path !== '/'" @click.stop="deleteEntry" href="#"><i class="material-icons">delete</i> delete {{entry.form}}</a>
-    <a class="pill" v-if="$store.state.selection.size" href="#" @click.prevent="deleteSelected"><i class="material-icons">delete</i> delete selected</a>
-  </nav>
-</header>
+<span @click.stop>
+  <header @click.stop>
+    <div class="main">
+      <router-link v-if="$route.path !== '/'" class="pointer back pill" :to="entry.parentLink">
+        <i class="material-icons">arrow_back</i>
+      </router-link>
+      <h1 class="pointer"><i class="material-icons">{{entry.icon}}</i> {{entry.displayPath}}</h1>
+    </div>
+    <nav class="pointer right" v-if="$store.getters.writable">
+      <a class="pill" v-if="entry.isDirectory" @click.prevent.stop="showFolderSettings = true" href="#"><i class="material-icons">settings</i> folder settings</a>
+      <a class="pill" v-if="entry.isFile" @click.prevent.stop="showFileSettings = true" href="#"><i class="material-icons">settings</i> file settings</a>
+      <a class="pill" v-if="entry.isDirectory" @click.prevent.stop="uploadFile" href="#"><i class="material-icons">insert_drive_file</i> upload file</a>
+      <a class="pill" v-if="entry.isDirectory" @click.prevent.stop="createFolder" href="#"><i class="material-icons">folder</i> new folder</a>
+      <a class="pill" v-if="entry.isDirectory" @click.prevent.stop="createText" href="#"><i class="material-icons">description</i> add text</a>
+      <a class="pill" v-if="entry.path !== '/'" @click.prevent.stop="renameEntry" href="#"><i class="material-icons">edit</i> rename</a>
+      <a class="pill" v-if="entry.path !== '/'" @click.prevent.stop="deleteEntry" href="#"><i class="material-icons">delete</i> delete {{entry.form}}</a>
+      <a class="pill" v-if="$store.state.selection.size" href="#" @click.prevent.stop="deleteSelected"><i class="material-icons">delete</i> delete selected</a>
+    </nav>
+  </header>
+  <modal v-if="showFolderSettings" @close="showFolderSettings = false">
+    <folder-settings></folder-settings>
+  </modal>
+  <modal v-if="showFileSettings" @close="showFileSettings = false">
+    <file-settings></file-settings>
+  </modal>
+</span>
 </template>
 
 <style scoped lang="scss">
@@ -65,10 +75,23 @@ header {
 </style>
 
 <script>
+import Modal from './Modal.vue'
+import FolderSettings from './FolderSettings.vue'
+import FileSettings from './FileSettings.vue'
+
 export default {
+  components: {
+    Modal,
+    FolderSettings,
+    FileSettings
+  },
   props: {
     entry: Object
   },
+  data: () => ({
+    showFolderSettings: false,
+    showFileSettings: false
+  }),
   methods: {
     async deleteEntry() {
       if(confirm(`Delete ${this.entry.name}?`)) {

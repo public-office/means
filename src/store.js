@@ -4,7 +4,7 @@ import _update from 'lodash-es/update'
 import _cloneDeep from 'lodash-es/cloneDeep'
 import _sortBy from 'lodash-es/sortBy'
 
-const IGNORE_FILES = ['/.ui', '/index.json']
+const IGNORE_FILES = ['/.ui', '/index.json', '/index.html']
 const MAX_Z_INDEX = 999999
 const drive = beaker.hyperdrive.drive(document.location.origin)
 
@@ -145,7 +145,9 @@ export default {
         const isDirectory = stat.isDirectory()
         const isFile = stat.isFile()
 
-        const metadata = stat.metadata || {}
+        const storedMetadata = path === '/' ? state.baseMetadata : stat.metadata
+
+        const metadata = {bg: '#ffffff', ...(storedMetadata || {})}
 
         const type = metadata.type
         let kind = isDirectory ? 'directory' : 'file'
@@ -183,8 +185,33 @@ export default {
         
         const visual = !['pdf', 'directory', 'audio'].includes(kind)
 
+        const {
+          dragX = true,
+          dragY = true,
+          scrollX = true,
+          scrollY = true,
+          loop = true,
+          autoplay = true,
+          muted = true,
+          controls = true
+        } = metadata
+
+        const bg = form === 'folder' ? metadata.bg : null
+
+        const settings = {
+          bg,
+          dragX: JSON.parse(dragX),
+          dragY: JSON.parse(dragY),
+          scrollX: JSON.parse(scrollX),
+          scrollY: JSON.parse(scrollY),
+          autoplay: JSON.parse(autoplay),
+          loop: JSON.parse(loop),
+          muted: JSON.parse(muted),
+          controls: JSON.parse(controls)
+        }
+
         return {
-          path, displayPath, base, parent, parentLink, kind, name, stat, isDirectory, isFile, form, type, icon, link, ext, visual
+          path, displayPath, base, parent, parentLink, kind, name, stat, isDirectory, isFile, form, type, icon, link, ext, visual, settings
         }
       }
     },
@@ -212,7 +239,7 @@ export default {
           }
         }
 
-        const resizable = !['directory', 'pdf', 'file'].includes(entry.kind)
+        const resizable = !['directory', 'pdf', 'file', 'audio'].includes(entry.kind)
         const draggable = true
         const aspect = entry.kind !== 'text'
 
@@ -285,8 +312,7 @@ export default {
       if(basePath === '/') {
         const indexStat = await drive.stat('index.json')
         baseMetadata = {
-          xOffset: indexStat.metadata.xOffset,
-          yOffset: indexStat.metadata.yOffset,
+          ...indexStat.metadata
         }
       }
 
