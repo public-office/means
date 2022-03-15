@@ -194,7 +194,7 @@ export default {
           autoplay = true,
           muted = true,
           controls = true,
-          fontFamily = 'TW',
+          fontFamily = null,
           fontSize = 18
         } = metadata
 
