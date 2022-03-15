@@ -13,7 +13,7 @@
   <iframe class="yield" v-else-if="single && entry.kind === 'pdf'" :src="src" />
   <div v-else>
     <i class="material-icons">{{entry.icon}}</i><br />
-    {{entry.name}}
+    <div class="name">{{entry.name}}</div>
   </div>
 </div>
 </template>

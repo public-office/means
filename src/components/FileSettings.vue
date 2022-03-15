@@ -17,12 +17,7 @@
   </fieldset>
   <fieldset v-if="entry.kind === 'text'">
     <label>Font family</label>
-    <select @change="handleSetting" name="fontFamily" :value="settings.fontFamily">
-      <option value="TW">TW</option>
-      <option value="Arial">Arial</option>
-      <option value="Helvetica">Helvetica</option>
-      <option value="Times New Roman">Times New Roman</option>
-    </select>
+    <select-font @change="handleSetting" name="fontFamily" :value="settings.fontFamily" />
   </fieldset>
   <fieldset v-if="entry.kind === 'text'">
     <label>Font size</label>
@@ -38,7 +33,12 @@ fieldset:last-of-type {
 </style>
 
 <script>
+import SelectFont from './SelectFont.vue'
+
 export default {
+  components: {
+    SelectFont
+  },
   computed: {
     entry() {
       return this.$store.getters.entry
@@ -52,6 +52,8 @@ export default {
       this.$store.dispatch('updateMetadata', {entry: {path: this.entry.path}, metadata, base: true})
     },
     handleSetting(event) {
+      console.log(event.target.name, event.target.value)
+
       if(event.target.type === 'checkbox') {
         return this.updateMetadata({ [event.target.name]: event.target.checked })
       }

@@ -117,7 +117,14 @@ export default {
       }
     }
   },
+  watch: {
+    'baseEntry.settings.fontFamily': function() {
+      this.updateFont()
+    }
+  },
   mounted() {
+    this.updateFont()
+
     const resizable = {
       edges: {top: true, bottom: true, left: true, right: true},
       listeners: {
@@ -176,6 +183,12 @@ export default {
       .draggable(draggable)
   },
   methods: {
+    updateFont() {
+      if(this.baseEntry?.settings) {
+        const {fontFamily} = this.baseEntry.settings
+        document.documentElement.style.setProperty('--font-family', fontFamily)
+      }
+    },
     onWheel(event) {
       event.preventDefault()
       this.$store.dispatch('dragStart', null)

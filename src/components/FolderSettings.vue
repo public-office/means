@@ -1,9 +1,13 @@
 <template>
 <form @submit.prevent>
   <fieldset>
-    <label>Background color</label>
+    <label>Background colour</label>
     <input type="color" v-model="bg" class="color" />
     <button class="pill small" @click="bg = '#ffffff'">reset</button>
+  </fieldset>
+  <fieldset>
+    <label>Font</label>
+    <select-font v-model="fontFamily" />
   </fieldset>
   <fieldset>
     <label>Dragging</label>
@@ -30,17 +34,30 @@ fieldset:last-of-type {
 </style>
 
 <script>
+import SelectFont from './SelectFont.vue'
+
 export default {
+  components: {
+    SelectFont
+  },
   computed: {
     baseEntry() {
       return this.$store.getters.baseEntry
     },
     bg: {
       get() {
-        return this.baseEntry.settings.bg
+        return this.settings.bg
       },
       set(bg) {
         this.updateMetadata({bg})
+      }
+    },
+    fontFamily: {
+      get() {
+        return this.settings.fontFamily
+      },
+      set(fontFamily) {
+        this.updateMetadata({fontFamily})
       }
     },
     settings() {

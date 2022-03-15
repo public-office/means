@@ -109,6 +109,9 @@ export default {
     bg() {
       return this.$store.getters.baseEntry?.settings.bg
     },
+    fontFamily() {
+      return this.$store.getters.baseEntry?.settings.fontFamily
+    },
     peersText() {
       let peers = 0
       if(this.$store.state.info.peers !== undefined) peers = this.$store.state.info.peers
