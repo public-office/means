@@ -21,7 +21,7 @@
   <footer>
     <span>{{peersText}}</span>
     <a class="pill" href="#" @click.prevent="forkDrive"><i class="material-icons">content_copy</i> fork</a>
-    <a href="#" class="pill" @click.stop="openSettings">
+    <a href="#" class="pill" @click.stop="openSettings" v-if="$store.getters.writable">
       <i class="material-icons">settings</i> project settings
     </a>
   </footer>
