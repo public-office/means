@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "mkdir -p dev && cp src/dev.html dev/index.html && vite",
-    "build": "vite build && cat dist/.ui/manifest.json | node src/index.html.js > dist/.ui/ui.html",
+    "build": "vite build && cat dist/.ui/manifest.json | node src/index.html.js > dist/.ui/ui.html; git rev-parse HEAD > dist/.version",
     "deploy": "dotenv -- bash -c 'hyp drive sync -y ./dist $DEPLOY_DRIVE'"
   },
   "devDependencies": {
