@@ -19,11 +19,17 @@
     :single="single"></SpatialEntries>
 
   <footer>
-    <span>{{peersText}}</span>
-    <a class="pill" href="#" @click.prevent="forkDrive"><i class="material-icons">content_copy</i> fork</a>
-    <a href="#" class="pill" @click.stop="openSettings" v-if="$store.getters.writable">
-      <i class="material-icons">settings</i> project settings
-    </a>
+    <div>
+      <span v-if="versionUrl">v. <a :href="versionUrl" target="_blank">{{version}}</a></span>
+      <span v-else>v. {{version}}</span>
+    </div>
+    <div>
+      <span>{{peersText}}</span>
+      <a class="pill" href="#" @click.prevent="forkDrive"><i class="material-icons">content_copy</i> fork</a>
+      <a href="#" class="pill" @click.stop="openSettings" v-if="$store.getters.writable">
+        <i class="material-icons">settings</i> project settings
+      </a>
+    </div>
   </footer>
 </div>
 </template>
@@ -57,12 +63,21 @@
 footer {
   position: absolute;
   bottom: 0;
+  left: 0;
   right: 0;
   z-index: 2;
   margin: var(--pad);
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  > span {
+  > div:first-of-type:not(:hover) {
+    opacity: 0.3;
+  }
+  > div {
+    display: flex;
+    align-items: center;
+  }
+  > div > span {
     display: inline-block;
   }
   > * {
@@ -111,6 +126,12 @@ export default {
     },
     fontFamily() {
       return this.$store.getters.baseEntry?.settings.fontFamily
+    },
+    version() {
+      return this.$store.state.version
+    },
+    versionUrl() {
+      if(this.version && this.version !== 'dev') return `https://github.com/public-office/means/commit/${this.version}`
     },
     peersText() {
       let peers = 0
