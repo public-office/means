@@ -69,7 +69,6 @@ function getPosition(entry, state, getters) {
 
 export default {
   state: {
-    version: 'dev',
     path: '/',
     info: {},
     stat: null,
@@ -82,7 +81,7 @@ export default {
     hover: null,
     loading: false,
     loadingTime: 0,
-    showSettings: false,
+    showSettings: false
   },
   getters: {
     offset(state, getters) {
@@ -298,13 +297,7 @@ export default {
     async getInfo({commit}) {
       const info = await drive.getInfo()
       document.title = info.title
-      let version
-      try {
-        version = await drive.readFile('/.version', {encoding: 'utf8'})
-      } catch (e) {
-        version = 'dev'
-      }
-      commit('update', {info, version})
+      commit('update', {info})
     },
     async fetchBase({state, commit, dispatch, getters}) {
       await dispatch('getInfo')
