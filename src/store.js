@@ -4,7 +4,7 @@ import _update from 'lodash-es/update'
 import _cloneDeep from 'lodash-es/cloneDeep'
 import _sortBy from 'lodash-es/sortBy'
 
-const IGNORE_FILES = ['/.ui', '/index.json', '/index.html']
+const IGNORE_FILES = ['/.ui', '/index.json', '/index.html', '/.version']
 const MAX_Z_INDEX = 999999
 const drive = beaker.hyperdrive.drive(document.location.origin)
 
